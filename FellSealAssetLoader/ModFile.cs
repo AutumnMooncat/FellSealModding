@@ -38,6 +38,8 @@ namespace FellSealAssetLoader
     public class ModFile : MelonMod
     {
         public static readonly Dictionary<string, Sprite> UnitySprites = new Dictionary<string, Sprite>();
+        public static readonly Dictionary<string, Texture2D> UnityTextures = new Dictionary<string, Texture2D>();
+        public static readonly Dictionary<object, Dictionary<string, object>> CustomAttributes = new Dictionary<object, Dictionary<string, object>>();
         
         public override void OnInitializeMelon()
         {
@@ -55,10 +57,14 @@ namespace FellSealAssetLoader
                     {
                         LoggerInstance.Warning("Sprite name collision on "+name);
                     }
-
-                    UnitySprites[name] = Sprite.Create(tex2D, new Rect(0f, 0f, tex2D.width, tex2D.height),
+                    
+                    var spr = Sprite.Create(tex2D, new Rect(0f, 0f, tex2D.width, tex2D.height),
                         new Vector2(tex2D.width / 2f, tex2D.height / 2f));
-                    UnitySprites[name].name = name;
+                    spr.name = name;
+                    UnitySprites[name] = spr; 
+                    UnityTextures[name] = tex2D;
+                    tex2D.hideFlags = HideFlags.DontUnloadUnusedAsset;
+                    spr.hideFlags = HideFlags.DontUnloadUnusedAsset;
                 }
                 else
                 {
@@ -66,6 +72,20 @@ namespace FellSealAssetLoader
                 }
             });
             LoggerInstance.Msg("Loading custom sounds");
+        }
+
+        public override void OnDeinitializeMelon()
+        {
+            foreach (var tex in UnityTextures.Values)
+            {
+                UnityEngine.Object.Destroy(tex);
+            }
+            foreach (var tex in UnitySprites.Values)
+            {
+                UnityEngine.Object.Destroy(tex);
+            }
+
+            Patches.LoadImages.TMPStitching.Stitched = false;
         }
     }
 
@@ -1111,13 +1131,13 @@ namespace FellSealAssetLoader
             [HarmonyPatch(typeof(TMP_SpriteAsset), nameof(TMP_SpriteAsset.UpdateLookupTables))]
             public static class TMPStitching
             {
-                private static bool stitched;
+                public static bool Stitched;
 
                 public static void Prefix(ref TMP_SpriteAsset __instance)
                 {
-                    if (!stitched)
+                    if (!Stitched)
                     {
-                        stitched = true;
+                        Stitched = true;
                         if (!ModFile.UnitySprites.Any())
                         {
                             return;
