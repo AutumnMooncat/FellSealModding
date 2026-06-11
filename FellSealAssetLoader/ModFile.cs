@@ -7,7 +7,6 @@ using HarmonyLib;
 using MelonLoader;
 using MelonLoader.Utils;
 using UnityEngine;
-using UnityEngine.UI;
 using Sprite = UnityEngine.Sprite;
 
 #if NET6_0
@@ -17,9 +16,9 @@ using Il2CppGame.Data;
 using Il2CppGame.Data.DLC1;
 using IniFile = Il2CppApEngine.IniFile;
 using Il2CppSpriteEngine;
-using Il2CppSpriteEngine.XMLLoader;
 using Il2CppTMPro;
-using Il2CppUI;
+using Il2CppSystem.Xml.Serialization;
+using XmlLoader = Il2CppApEngine.XmlLoader;
 #else
 using ApEngine;
 using Game;
@@ -27,9 +26,8 @@ using Game.Data;
 using Game.Data.DLC1;
 using IniFile = ApEngine.IniFile;
 using SpriteEngine;
-using SpriteEngine.XMLLoader;
 using TMPro;
-using UI;
+using System.Xml.Serialization;
 #endif
 
 [assembly: MelonInfo(typeof(ModFile), "Fell Seal Asset Loader", "0.0.1", "Autumn Mooncat")]
@@ -88,6 +86,43 @@ namespace FellSealAssetLoader
             Patches.LoadImages.TMPStitching.Stitched = false;
         }
     }
+    
+    // Enum Ext (Wip, fully custom)
+    #if NET6_0
+    [HarmonyPatch(typeof(XmlSerializer), nameof(XmlSerializer.OnUnknownAttribute))]
+    public class XmlRectifier
+    {
+        public static void Prefix(XmlAttributeEventArgs e)
+        {
+            Melon<ModFile>.Logger.Msg($"Got unknown attribute {e.attr.Name}:{e.attr.Value} when Deserializing {e.o}");
+            if (!ModFile.CustomAttributes.ContainsKey(e.o))
+            {
+                ModFile.CustomAttributes[e.o] = new Dictionary<string, object>();
+            }
+            ModFile.CustomAttributes[e.o][e.attr.Name] = e.attr.Value;
+        }
+    }
+    #else
+    [HarmonyPatch(typeof(XmlSerializer), nameof(XmlSerializer.Deserialize), typeof(TextReader))]
+    public class XmlRectifier
+    {
+        public static void Prefix(XmlSerializer __instance)
+        {
+            __instance.UnknownAttribute += (sender, args) =>
+            {
+                Melon<ModFile>.Logger.Msg($"Got unknown attribute {args.Attr.Name}:{args.Attr.Value} when Deserializing {args.ObjectBeingDeserialized}");
+                if (!ModFile.CustomAttributes.ContainsKey(args.ObjectBeingDeserialized))
+                {
+                    ModFile.CustomAttributes[args.ObjectBeingDeserialized] =
+                        new Dictionary<string, object>();
+                }
+
+                ModFile.CustomAttributes[args.ObjectBeingDeserialized][args.Attr.Name] =
+                    args.Attr.Value;
+            };
+        }
+    }
+    #endif
 
     [HarmonyPatch]
     public static class Patches
@@ -1196,7 +1231,5 @@ namespace FellSealAssetLoader
         }
         
         // Sounds (Maybe, fully custom)
-        
-        // Enum Ext (Maybe, fully custom)
     }
 }
