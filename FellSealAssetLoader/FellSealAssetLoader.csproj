@@ -91,5 +91,24 @@
             <Private>false</Private>
         </Reference>
     </ItemGroup>
-    
+
+    <Target Name="CopyFiles" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net472'">
+        <Message Importance="high" Text="Copying output to linux mods folder"/>
+        <ItemGroup>
+            <MySourceFiles Include="$(BaseOutputPath)/Debug/net472/**/*.*"/>
+        </ItemGroup>
+        <Copy SourceFiles="@(MySourceFiles)" DestinationFolder="/extra/SteamLibrary/steamapps/common/Fell Seal/Mods/%(RecursiveDir)">
+            <Output TaskParameter="CopiedFiles" ItemName="SuccessfullyCopiedFiles"/>
+        </Copy>
+    </Target>
+
+    <Target Name="CopyFiles2" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net6.0'">
+        <Message Importance="high" Text="Copying output to windows mods folder"/>
+        <ItemGroup>
+            <MySourceFiles Include="$(BaseOutputPath)/Debug/net6.0/**/*.*"/>
+        </ItemGroup>
+        <Copy SourceFiles="@(MySourceFiles)" DestinationFolder="/extra/SteamLibrary/steamapps/common/Fell Seal Windows/Mods/%(RecursiveDir)">
+            <Output TaskParameter="CopiedFiles" ItemName="SuccessfullyCopiedFiles"/>
+        </Copy>
+    </Target>
 </Project>
