@@ -30,10 +30,10 @@ using TMPro;
 using System.Xml.Serialization;
 #endif
 
-[assembly: MelonInfo(typeof(ModFile), "Fell Seal Asset Loader", "0.0.1", "Autumn Mooncat")]
+[assembly: MelonInfo(typeof(AssetLoaderMod), "Fell Seal Asset Loader", "0.0.1", "Autumn Mooncat")]
 namespace FellSealAssetLoader
 {
-    public class ModFile : MelonMod
+    public class AssetLoaderMod : MelonMod
     {
         public static readonly Dictionary<string, Sprite> UnitySprites = new Dictionary<string, Sprite>();
         public static readonly Dictionary<string, Texture2D> UnityTextures = new Dictionary<string, Texture2D>();
@@ -86,20 +86,22 @@ namespace FellSealAssetLoader
             Patches.LoadImages.TMPStitching.Stitched = false;
         }
     }
-    
+
     // Enum Ext (Wip, fully custom)
+    
+    // XML Ext (Wip, fully custom) 
     #if NET6_0
     [HarmonyPatch(typeof(XmlSerializer), nameof(XmlSerializer.OnUnknownAttribute))]
     public class XmlRectifier
     {
         public static void Prefix(XmlAttributeEventArgs e)
         {
-            Melon<ModFile>.Logger.Msg($"Got unknown attribute {e.attr.Name}:{e.attr.Value} when Deserializing {e.o}");
-            if (!ModFile.CustomAttributes.ContainsKey(e.o))
+            Melon<AssetLoaderMod>.Logger.Msg($"Got unknown attribute {e.attr.Name}:{e.attr.Value} when Deserializing {e.o}");
+            if (!AssetLoaderMod.CustomAttributes.ContainsKey(e.o))
             {
-                ModFile.CustomAttributes[e.o] = new Dictionary<string, object>();
+                AssetLoaderMod.CustomAttributes[e.o] = new Dictionary<string, object>();
             }
-            ModFile.CustomAttributes[e.o][e.attr.Name] = e.attr.Value;
+            AssetLoaderMod.CustomAttributes[e.o][e.attr.Name] = e.attr.Value;
         }
     }
     #else
@@ -110,14 +112,14 @@ namespace FellSealAssetLoader
         {
             __instance.UnknownAttribute += (sender, args) =>
             {
-                Melon<ModFile>.Logger.Msg($"Got unknown attribute {args.Attr.Name}:{args.Attr.Value} when Deserializing {args.ObjectBeingDeserialized}");
-                if (!ModFile.CustomAttributes.ContainsKey(args.ObjectBeingDeserialized))
+                Melon<AssetLoaderMod>.Logger.Msg($"Got unknown attribute {args.Attr.Name}:{args.Attr.Value} when Deserializing {args.ObjectBeingDeserialized}");
+                if (!AssetLoaderMod.CustomAttributes.ContainsKey(args.ObjectBeingDeserialized))
                 {
-                    ModFile.CustomAttributes[args.ObjectBeingDeserialized] =
+                    AssetLoaderMod.CustomAttributes[args.ObjectBeingDeserialized] =
                         new Dictionary<string, object>();
                 }
 
-                ModFile.CustomAttributes[args.ObjectBeingDeserialized][args.Attr.Name] =
+                AssetLoaderMod.CustomAttributes[args.ObjectBeingDeserialized][args.Attr.Name] =
                     args.Attr.Value;
             };
         }
@@ -143,7 +145,7 @@ namespace FellSealAssetLoader
                 {
                     if (file.EndsWith(target))
                     {
-                        Melon<ModFile>.Logger.Msg("Processing "+file);
+                        Melon<AssetLoaderMod>.Logger.Msg("Processing "+file);
                         callback(file);
                     }
                 }
@@ -186,7 +188,7 @@ namespace FellSealAssetLoader
                 if (_iniContext != null && _locContext != null && _files != null && _files.Length > _index)
                 {
                     _needsLoading = false;
-                    Melon<ModFile>.Logger.Msg("Loading custom "+_files[_index].mFile.Split('.').FirstOrDefault()+" localization");
+                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom "+_files[_index].mFile.Split('.').FirstOrDefault()+" localization");
                     FrozenWalk(MelonEnvironment.ModsDirectory, Path.Combine("languages",_locContext.mLanguageCode,_files[_index].mFile), txt =>
                     {
                         IniFile other = new IniFile();
@@ -197,7 +199,7 @@ namespace FellSealAssetLoader
                 }
                 else
                 {
-                    Melon<ModFile>.Logger.Msg("No context for custom localization");
+                    Melon<AssetLoaderMod>.Logger.Msg("No context for custom localization");
                 }
             }
             
@@ -273,7 +275,7 @@ namespace FellSealAssetLoader
                 if (_context != null)
                 {
                     _needLoad = false;
-                    Melon<ModFile>.Logger.Msg("Loading custom monsters");
+                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom monsters");
                     FrozenWalk(MelonEnvironment.ModsDirectory, "Monsters.xml", xml =>
                     {
                         _context.UpdateMonstersFromFile(null, xml, ServiceProvider.GetInstance().Get<TermsDictionary>());
@@ -281,7 +283,7 @@ namespace FellSealAssetLoader
                 }
                 else
                 {
-                    Melon<ModFile>.Logger.Msg("No context for custom monsters");
+                    Melon<AssetLoaderMod>.Logger.Msg("No context for custom monsters");
                 }
             }
             
@@ -308,7 +310,7 @@ namespace FellSealAssetLoader
                             }
                             else
                             {
-                                Melon<ModFile>.Logger.Msg("Monsters customdata exists, defer loader");
+                                Melon<AssetLoaderMod>.Logger.Msg("Monsters customdata exists, defer loader");
                                 _needLoad = true;
                             }
                             return true;
@@ -316,7 +318,7 @@ namespace FellSealAssetLoader
 
                         if (_context == null)
                         {
-                            Melon<ModFile>.Logger.Msg("Loading failed");
+                            Melon<AssetLoaderMod>.Logger.Msg("Loading failed");
                             return true;
                         }
                         return false;
@@ -364,7 +366,7 @@ namespace FellSealAssetLoader
                 if (_abilityContext != null)
                 {
                     _needLoadAbilities = false;
-                    Melon<ModFile>.Logger.Msg("Loading custom abilities");
+                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom abilities");
                     FrozenWalk(MelonEnvironment.ModsDirectory, "Abilities.xml", xml =>
                     {
                         _abilityContext.LoadExtraAbilities(null, xml, true, ServiceProvider.GetInstance().Get<TermsDictionary>());
@@ -372,7 +374,7 @@ namespace FellSealAssetLoader
                 }
                 else
                 {
-                    Melon<ModFile>.Logger.Msg("No context for custom abilities");
+                    Melon<AssetLoaderMod>.Logger.Msg("No context for custom abilities");
                 }
             }
 
@@ -381,7 +383,7 @@ namespace FellSealAssetLoader
                 if (_abilityContext != null)
                 {
                     _needLoadJobs = false;
-                    Melon<ModFile>.Logger.Msg("Loading custom jobs");
+                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom jobs");
                     FrozenWalk(MelonEnvironment.ModsDirectory, "Jobs.xml", xml =>
                     {
                         _abilityContext.LoadExtraJobs(null, xml, true, ServiceProvider.GetInstance().Get<TermsDictionary>(), true, false);
@@ -389,7 +391,7 @@ namespace FellSealAssetLoader
                 }
                 else
                 {
-                    Melon<ModFile>.Logger.Msg("No context for custom jobs");
+                    Melon<AssetLoaderMod>.Logger.Msg("No context for custom jobs");
                 }
             }
             
@@ -414,7 +416,7 @@ namespace FellSealAssetLoader
                             }
                             else
                             {
-                                Melon<ModFile>.Logger.Msg("Abilities customdata exists, defer loader");
+                                Melon<AssetLoaderMod>.Logger.Msg("Abilities customdata exists, defer loader");
                                 _needLoadAbilities = true;
                             }
                             return true;
@@ -422,7 +424,7 @@ namespace FellSealAssetLoader
 
                         if (_abilityContext == null)
                         {
-                            Melon<ModFile>.Logger.Msg("Ability loading failed");
+                            Melon<AssetLoaderMod>.Logger.Msg("Ability loading failed");
                             return true;
                         }
                         return false;
@@ -441,7 +443,7 @@ namespace FellSealAssetLoader
                             }
                             else
                             {
-                                Melon<ModFile>.Logger.Msg("Jobs customdata exists, defer loader");
+                                Melon<AssetLoaderMod>.Logger.Msg("Jobs customdata exists, defer loader");
                                 _needLoadJobs = true;
                             }
                             return true;
@@ -449,7 +451,7 @@ namespace FellSealAssetLoader
                         
                         if (_abilityContext == null)
                         {
-                            Melon<ModFile>.Logger.Msg("Job loading failed");
+                            Melon<AssetLoaderMod>.Logger.Msg("Job loading failed");
                             return true;
                         }
                         return false;
@@ -519,7 +521,7 @@ namespace FellSealAssetLoader
                 if (_context != null)
                 {
                     _needLoad = false;
-                    Melon<ModFile>.Logger.Msg("Loading custom weapons");
+                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom weapons");
                     FrozenWalk(MelonEnvironment.ModsDirectory, "Weapons.xml", xml =>
                     {
                         _context.UpdateWeaponsFromFile(null, xml, ServiceProvider.GetInstance().Get<TermsDictionary>());
@@ -527,7 +529,7 @@ namespace FellSealAssetLoader
                 }
                 else
                 {
-                    Melon<ModFile>.Logger.Msg("No context for custom weapons");
+                    Melon<AssetLoaderMod>.Logger.Msg("No context for custom weapons");
                 }
             }
             
@@ -554,7 +556,7 @@ namespace FellSealAssetLoader
                             }
                             else
                             {
-                                Melon<ModFile>.Logger.Msg("Weapons customdata exists, defer loader");
+                                Melon<AssetLoaderMod>.Logger.Msg("Weapons customdata exists, defer loader");
                                 _needLoad = true;
                             }
                             return true;
@@ -562,7 +564,7 @@ namespace FellSealAssetLoader
 
                         if (_context == null)
                         {
-                            Melon<ModFile>.Logger.Msg("Loading failed");
+                            Melon<AssetLoaderMod>.Logger.Msg("Loading failed");
                             return true;
                         }
                         return false;
@@ -609,7 +611,7 @@ namespace FellSealAssetLoader
                 if (_context != null)
                 {
                     _needLoad = false;
-                    Melon<ModFile>.Logger.Msg("Loading custom armors");
+                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom armors");
                     FrozenWalk(MelonEnvironment.ModsDirectory, "Armors.xml", xml =>
                     {
                         _context.UpdateArmorsFromFile(null, xml, ServiceProvider.GetInstance().Get<TermsDictionary>());
@@ -617,7 +619,7 @@ namespace FellSealAssetLoader
                 }
                 else
                 {
-                    Melon<ModFile>.Logger.Msg("No context for custom armors");
+                    Melon<AssetLoaderMod>.Logger.Msg("No context for custom armors");
                 }
             }
             
@@ -644,7 +646,7 @@ namespace FellSealAssetLoader
                             }
                             else
                             {
-                                Melon<ModFile>.Logger.Msg("Armors customdata exists, defer loader");
+                                Melon<AssetLoaderMod>.Logger.Msg("Armors customdata exists, defer loader");
                                 _needLoad = true;
                             }
                             return true;
@@ -652,7 +654,7 @@ namespace FellSealAssetLoader
 
                         if (_context == null)
                         {
-                            Melon<ModFile>.Logger.Msg("Loading failed");
+                            Melon<AssetLoaderMod>.Logger.Msg("Loading failed");
                             return true;
                         }
                         return false;
@@ -699,7 +701,7 @@ namespace FellSealAssetLoader
                 if (_context != null)
                 {
                     _needLoad = false;
-                    Melon<ModFile>.Logger.Msg("Loading custom accessories");
+                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom accessories");
                     FrozenWalk(MelonEnvironment.ModsDirectory, "Accessories.xml", xml =>
                     {
                         _context.UpdateAccsFromFile(null, xml, ServiceProvider.GetInstance().Get<TermsDictionary>());
@@ -707,7 +709,7 @@ namespace FellSealAssetLoader
                 }
                 else
                 {
-                    Melon<ModFile>.Logger.Msg("No context for custom accessories");
+                    Melon<AssetLoaderMod>.Logger.Msg("No context for custom accessories");
                 }
             }
             
@@ -734,7 +736,7 @@ namespace FellSealAssetLoader
                             }
                             else
                             {
-                                Melon<ModFile>.Logger.Msg("Accessories customdata exists, defer loader");
+                                Melon<AssetLoaderMod>.Logger.Msg("Accessories customdata exists, defer loader");
                                 _needLoad = true;
                             }
                             return true;
@@ -742,7 +744,7 @@ namespace FellSealAssetLoader
 
                         if (_context == null)
                         {
-                            Melon<ModFile>.Logger.Msg("Loading failed");
+                            Melon<AssetLoaderMod>.Logger.Msg("Loading failed");
                             return true;
                         }
                         return false;
@@ -789,7 +791,7 @@ namespace FellSealAssetLoader
                 if (_context != null)
                 {
                     _needLoad = false;
-                    Melon<ModFile>.Logger.Msg("Loading custom crafting");
+                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom crafting");
                     #if NET6_0
                     var dict = new Il2CppSystem.Collections.Generic.Dictionary<string, Recipe>();
                     #else
@@ -806,7 +808,7 @@ namespace FellSealAssetLoader
                 }
                 else
                 {
-                    Melon<ModFile>.Logger.Msg("No context for custom crafting");
+                    Melon<AssetLoaderMod>.Logger.Msg("No context for custom crafting");
                 }
             }
             
@@ -833,7 +835,7 @@ namespace FellSealAssetLoader
                             }
                             else
                             {
-                                Melon<ModFile>.Logger.Msg("Crafting customdata exists, defer loader");
+                                Melon<AssetLoaderMod>.Logger.Msg("Crafting customdata exists, defer loader");
                                 _needLoad = true;
                             }
                             return true;
@@ -841,7 +843,7 @@ namespace FellSealAssetLoader
 
                         if (_context == null)
                         {
-                            Melon<ModFile>.Logger.Msg("Loading failed");
+                            Melon<AssetLoaderMod>.Logger.Msg("Loading failed");
                             return true;
                         }
                         return false;
@@ -884,7 +886,7 @@ namespace FellSealAssetLoader
             {
                 public static void Postfix(Consumables __instance)
                 {
-                    Melon<ModFile>.Logger.Msg("Loading custom crafting");
+                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom crafting");
                     TermsDictionary termsDictionary = ServiceProvider.GetInstance().Get<TermsDictionary>();
                     FrozenWalk(MelonEnvironment.ModsDirectory, "Consumables.xml", xml =>
                     {
@@ -907,7 +909,7 @@ namespace FellSealAssetLoader
                         }
                         catch (Exception ex)
                         {
-                            Melon<ModFile>.Logger.Error($"There was an error parsing file: {xml} with exception: {ex}");
+                            Melon<AssetLoaderMod>.Logger.Error($"There was an error parsing file: {xml} with exception: {ex}");
                             __instance.mErrorLoadingFiles = $"{__instance.mErrorLoadingFiles}\n{termsDictionary.ParseStringWithArgs(__instance.mLocManager.GetTermNoColors("options-error-file"), xml)}";
                         }
                     });
@@ -928,7 +930,7 @@ namespace FellSealAssetLoader
                 if (_context != null)
                 {
                     _needLoad = false;
-                    Melon<ModFile>.Logger.Msg("Loading custom stores");
+                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom stores");
                     FrozenWalk(MelonEnvironment.ModsDirectory, "Stores.xml", xml =>
                     {
                         _context.LoadAddedData(null, xml, ServiceProvider.GetInstance().Get<LocManager>(), ServiceProvider.GetInstance().Get<TermsDictionary>());
@@ -936,7 +938,7 @@ namespace FellSealAssetLoader
                 }
                 else
                 {
-                    Melon<ModFile>.Logger.Msg("No context for custom stores");
+                    Melon<AssetLoaderMod>.Logger.Msg("No context for custom stores");
                 }
             }
             
@@ -963,7 +965,7 @@ namespace FellSealAssetLoader
                             }
                             else
                             {
-                                Melon<ModFile>.Logger.Msg("Stores customdata exists, defer loader");
+                                Melon<AssetLoaderMod>.Logger.Msg("Stores customdata exists, defer loader");
                                 _needLoad = true;
                             }
                             return true;
@@ -971,7 +973,7 @@ namespace FellSealAssetLoader
 
                         if (_context == null)
                         {
-                            Melon<ModFile>.Logger.Msg("Loading failed");
+                            Melon<AssetLoaderMod>.Logger.Msg("Loading failed");
                             return true;
                         }
                         return false;
@@ -1024,7 +1026,7 @@ namespace FellSealAssetLoader
                 if (_context != null)
                 {
                     _needLoad = false;
-                    Melon<ModFile>.Logger.Msg("Loading custom missions");
+                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom missions");
                     TermsDictionary termsDictionary = ServiceProvider.GetInstance().Get<TermsDictionary>();
                     FrozenWalk(MelonEnvironment.ModsDirectory, "Missions.xml", xml =>
                     {
@@ -1040,14 +1042,14 @@ namespace FellSealAssetLoader
                         }
                         catch (Exception ex)
                         {
-                            Melon<ModFile>.Logger.Msg($"There was an error parsing file: {xml} with exception: {ex}");
+                            Melon<AssetLoaderMod>.Logger.Msg($"There was an error parsing file: {xml} with exception: {ex}");
                             _context.mErrorLoadingFiles = $"{_context.mErrorLoadingFiles}\n{termsDictionary.ParseStringWithArgs(_context.mLocManager.GetTermNoColors("options-error-file"), xml)}";
                         }
                     });
                 }
                 else
                 {
-                    Melon<ModFile>.Logger.Msg("No context for custom missions");
+                    Melon<AssetLoaderMod>.Logger.Msg("No context for custom missions");
                 }
             }
             
@@ -1075,7 +1077,7 @@ namespace FellSealAssetLoader
                             }
                             else
                             {
-                                Melon<ModFile>.Logger.Msg("Missions customdata exists, defer loader");
+                                Melon<AssetLoaderMod>.Logger.Msg("Missions customdata exists, defer loader");
                                 _needLoad = true;
                             }
                             return true;
@@ -1083,7 +1085,7 @@ namespace FellSealAssetLoader
 
                         if (_context == null)
                         {
-                            Melon<ModFile>.Logger.Msg("Loading failed");
+                            Melon<AssetLoaderMod>.Logger.Msg("Loading failed");
                             return true;
                         }
                         return false;
@@ -1121,7 +1123,7 @@ namespace FellSealAssetLoader
                 public static bool Prefix(Loader __instance, ref Sprite __result, string assetName)
                 {
                     //Melon<ModFile>.Logger.Msg("Loading sprite asset "+assetName);
-                    if (ModFile.UnitySprites.TryGetValue(assetName, out var spr))
+                    if (AssetLoaderMod.UnitySprites.TryGetValue(assetName, out var spr))
                     {
                         //Melon<ModFile>.Logger.Msg("Got custom sprite asset "+assetName);
                         __result = spr;
@@ -1137,7 +1139,7 @@ namespace FellSealAssetLoader
                 public static bool Prefix(Loader __instance, ref Sprite __result, string assetName, string actionName)
                 {
                     //Melon<ModFile>.Logger.Msg("Loading sprite asset action "+assetName+"."+actionName);
-                    if (ModFile.UnitySprites.TryGetValue(actionName, out var spr))
+                    if (AssetLoaderMod.UnitySprites.TryGetValue(actionName, out var spr))
                     {
                         //Melon<ModFile>.Logger.Msg("Got custom sprite asset action "+assetName+"."+actionName);
                         __result = spr;
@@ -1153,7 +1155,7 @@ namespace FellSealAssetLoader
                 public static bool Prefix(Loader __instance, ref Sprite __result, string assetName)
                 {
                     //Melon<ModFile>.Logger.Msg("Loading raw sprite asset "+assetName);
-                    if (ModFile.UnitySprites.TryGetValue(assetName, out var spr))
+                    if (AssetLoaderMod.UnitySprites.TryGetValue(assetName, out var spr))
                     {
                         //Melon<ModFile>.Logger.Msg("Got custom raw sprite asset "+assetName);
                         __result = spr;
@@ -1173,11 +1175,11 @@ namespace FellSealAssetLoader
                     if (!Stitched)
                     {
                         Stitched = true;
-                        if (!ModFile.UnitySprites.Any())
+                        if (!AssetLoaderMod.UnitySprites.Any())
                         {
                             return;
                         }
-                        Melon<ModFile>.Logger.Msg("Stitching TMP sprite atlas");
+                        Melon<AssetLoaderMod>.Logger.Msg("Stitching TMP sprite atlas");
                         var activeBackup = RenderTexture.active;
                         var spriteSheet = __instance.spriteSheet;
                         var targetRender = new RenderTexture(spriteSheet.width, spriteSheet.height, 32);
@@ -1194,7 +1196,7 @@ namespace FellSealAssetLoader
                             Graphics.CopyTexture_Region(origTex, 0, 0, (int)info.x, (int)info.y, (int)info.width, (int)info.height, tex, 0, 0, 0, 0);
                             textures.Add(tex);
                         }
-                        foreach (var spr in ModFile.UnitySprites.Values)
+                        foreach (var spr in AssetLoaderMod.UnitySprites.Values)
                         {
                             textures.Add(spr.texture);
                             var tmpSpr = new TMP_Sprite
