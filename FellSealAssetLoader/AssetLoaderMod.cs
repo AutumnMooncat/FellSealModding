@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using FellSealAssetLoader;
 using HarmonyLib;
 using MelonLoader;
 using MelonLoader.Utils;
 using UnityEngine;
+using Action = System.Action;
 using Sprite = UnityEngine.Sprite;
 
 #if NET6_0
+using Il2Cpp;
 using Il2CppApEngine;
 using Il2CppGame;
 using Il2CppGame.Data;
@@ -38,6 +42,15 @@ namespace FellSealAssetLoader
         public static readonly Dictionary<string, Sprite> UnitySprites = new Dictionary<string, Sprite>();
         public static readonly Dictionary<string, Texture2D> UnityTextures = new Dictionary<string, Texture2D>();
         public static readonly Dictionary<object, Dictionary<string, object>> CustomAttributes = new Dictionary<object, Dictionary<string, object>>();
+        public static readonly ConditionalWeakTable<object, Dictionary<string, object>> CustomData =
+            new ConditionalWeakTable<object, Dictionary<string, object>>();
+        public static readonly Dictionary<Type, Dictionary<string, Enum>> Extensions = new Dictionary<Type, Dictionary<string, Enum>>();
+        public static readonly Dictionary<string, object> Contexts = new Dictionary<string, object>(); 
+        
+        private static bool _earlyHooked;
+        private static bool _lateHooked;
+        private static readonly List<Action> ToEarlyHook = new List<Action>();
+        private static readonly List<Action> ToLateHook = new List<Action>();
         
         public override void OnInitializeMelon()
         {
@@ -69,7 +82,7 @@ namespace FellSealAssetLoader
                     LoggerInstance.Error("Failed to load sprite at "+png);
                 }
             });
-            LoggerInstance.Msg("Loading custom sounds");
+            //LoggerInstance.Msg("Loading custom sounds");
         }
 
         public override void OnDeinitializeMelon()
@@ -84,6 +97,284 @@ namespace FellSealAssetLoader
             }
 
             Patches.LoadImages.TMPStitching.Stitched = false;
+        }
+
+        public override void OnLateInitializeMelon()
+        {
+            EarlyHook();
+
+            HarmonyInstance.Patch(AccessTools.Method(typeof(Platform), nameof(Platform.UpdateLate)),
+                new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(LateHook))));
+        }
+
+        private static void EarlyHook()
+        {
+            if (!_earlyHooked)
+            {
+                _earlyHooked = true;
+                Melon<AssetLoaderMod>.Logger.Msg($"Running {ToEarlyHook.Count} hook action{(ToEarlyHook.Count == 1 ? "" : "s")}");
+                foreach (var a in ToEarlyHook)
+                {
+                    a();
+                }
+                ToEarlyHook.Clear();
+            }
+        }
+        
+        private static void LateHook()
+        {
+            if (!_lateHooked)
+            {
+                _lateHooked = true;
+                Melon<AssetLoaderMod>.Logger.Msg($"Running {ToLateHook.Count} late hook action{(ToLateHook.Count == 1 ? "" : "s")}");
+                foreach (var a in ToLateHook)
+                {
+                    a();
+                }
+                ToLateHook.Clear();
+            }
+        }
+
+        public static Dictionary<string, object> GetCustomData(object o)
+        {
+            return CustomData.GetOrCreateValue(o);
+        }
+        
+        public static void DoOnHook(Action a)
+        {
+            if (DidHook())
+            {
+                a();
+            }
+            else
+            {
+                ToEarlyHook.Add(a);
+            }
+        }
+
+        public static bool DidHook()
+        {
+            return _earlyHooked;
+        }
+
+        public static void DoOnLateHook(Action a)
+        {
+            if (DidLateHook())
+            {
+                a();
+            }
+            else
+            {
+                ToLateHook.Add(a);
+            }
+        }
+
+        public static bool DidLateHook()
+        {
+            return _lateHooked;
+        }
+        
+        public static T RequestExtendedEnum<T>(string name) where T : Enum
+        {
+            var type = typeof(T);
+            if (!Extensions.ContainsKey(type))
+            {
+                Extensions[type] = new Dictionary<string, Enum>();
+            }
+            if (Extensions[type].TryGetValue(name, out var val))
+            {
+                return (T) val;
+            }
+            
+            var limit = type.GetEnumValues().Length + Extensions[type].Count;
+            var flags = Attribute.IsDefined(type, typeof(FlagsAttribute));
+            if (flags)
+            {
+                Extensions[type][name] = (T) Enum.ToObject(type, 1<<limit);
+            }
+            else
+            {
+                Extensions[type][name] = (T) Enum.ToObject(type, limit);
+            }
+            Melon<AssetLoaderMod>.Logger.Msg($"Created Extended Enum {name} for {type} -> {Extensions[type][name]}");
+            return (T) Extensions[type][name];
+        }
+
+        public static Context<T> RequestContext<T>(string methodName, params Type[] paramtypez) where T : class
+        {
+            var key = ContextKey(typeof(T).Name, methodName, paramtypez);
+            if (Contexts.TryGetValue(key, out var found))
+            {
+                return found as Context<T>;
+            }
+
+            var ctx = new Context<T>();
+            Melon<AssetLoaderMod>.Logger.Msg($"Creating Context for {key}");
+            Contexts[key] = ctx;
+            DoOnHook(() =>
+            {
+                ctx.Register(AccessTools.Method(typeof(T), methodName, paramtypez));
+                HookContext(ctx);
+            });
+            return ctx;
+        }
+        
+        public static Context<T> RequestLateContext<T>(string methodName, params Type[] paramtypez) where T : class
+        {
+            var key = ContextKey(typeof(T).Name, methodName, paramtypez);
+            if (Contexts.TryGetValue(key, out var found))
+            {
+                return found as Context<T>;
+            }
+
+            Melon<AssetLoaderMod>.Logger.Msg($"Creating Late Context for {key}");
+            var ctx = new Context<T>();
+            Contexts[key] = ctx;
+            DoOnLateHook(() =>
+            {
+                ctx.Register(AccessTools.Method(typeof(T), methodName, paramtypez));
+                HookContext(ctx);
+            });
+            return ctx;
+        }
+
+        public static string ContextKey(MethodBase method)
+        {
+            return ContextKey(method.DeclaringType?.Name, method.Name, method.GetParameters().Types());
+        }
+
+        public static string ContextKey(string typeName, string methodName, params Type[] paramtypez)
+        {
+            return $"{typeName}.{methodName}[{(paramtypez == null ? "" : string.Join(", ", paramtypez.Select(t => t.ToString())))}]";
+        }
+
+        private static void HookContext<T>(Context<T> context) where T: class
+        {
+            if (context.IsRegistered(out var hook))
+            {
+                Melon<AssetLoaderMod>.Logger.Msg($"Hooking Context for {hook.DeclaringType?.Name}.{hook.Name}");
+                if (hook is MethodInfo info && info.ReturnType != typeof(void))
+                {
+                    Melon<AssetLoaderMod>.Instance.HarmonyInstance.Patch(hook,
+                        new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(HoldContext))),
+                        new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(ReleaseReturnContext)))
+                    );
+                }
+                else
+                {
+                    Melon<AssetLoaderMod>.Instance.HarmonyInstance.Patch(hook,
+                        new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(HoldContext))),
+                        new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(ReleaseContext)))
+                    );
+                }
+            }
+            else
+            {
+                Melon<AssetLoaderMod>.Logger.Error($"Context has no hook registered");
+            }
+        }
+
+        private static void HoldContext(object __instance, MethodBase __originalMethod, object[] __args)
+        {
+            /*Melon<AssetLoaderMod>.Logger.Msg($"Checking for Context for {__instance.GetType()}.{__originalMethod.Name}");
+            foreach (var pair in Contexts)
+            {
+                Melon<AssetLoaderMod>.Logger.Msg($"Has {pair.Key} -> {pair.Value}");
+            }*/
+            if (Contexts.TryGetValue(ContextKey(__originalMethod), out var val))
+            {
+                //Melon<AssetLoaderMod>.Logger.Msg("Context found, handling");
+                typeof(Context<>).MakeGenericType(__instance.GetType()).GetMethod("Hold")?.Invoke(val, new []{__instance, __args});
+            }
+        }
+
+        private static void ReleaseContext(object __instance, MethodBase __originalMethod, object[] __args)
+        {
+            if (Contexts.TryGetValue(ContextKey(__originalMethod), out var val))
+            {
+                typeof(Context<>).MakeGenericType(__instance.GetType()).GetMethod("Release")?.Invoke(val, new []{__instance, __args, null});
+            }
+        }
+        
+        private static void ReleaseReturnContext(object __instance, MethodBase __originalMethod, object[] __args, object __result)
+        {
+            if (Contexts.TryGetValue(ContextKey(__originalMethod), out var val))
+            {
+                typeof(Context<>).MakeGenericType(__instance.GetType()).GetMethod("Release")?.Invoke(val, new []{__instance, __args, __result});
+            }
+        }
+    }
+
+    public class Context<T> where T : class
+    {
+        public delegate void HoldDel(T __instance, object[] __args);
+
+        public delegate void ReleaseDel(T __instance, object[] __args,  object __result);
+        
+        public T instance;
+        public object[] args;
+        private MethodBase _hook;
+
+        public event HoldDel OnHold;
+        public event ReleaseDel OnRelease;
+
+        public void Register(MethodBase hook)
+        {
+            if (IsRegistered())
+            {
+                Melon<AssetLoaderMod>.Logger.Error($"Context has already registered {_hook}, cannot register {hook}");
+                return;
+            }
+
+            _hook = hook;
+        }
+
+        public bool IsRegistered()
+        {
+            return _hook != null;
+        }
+        
+        public bool IsRegistered(out MethodBase hook)
+        {
+            hook = _hook;
+            return _hook != null;
+        }
+
+        public bool Get()
+        {
+            return IsRegistered() && instance != null;
+        }
+
+        public bool Get(out T ctx)
+        {
+            ctx = instance;
+            return IsRegistered() && instance != null;
+        }
+
+        public void Hold(T __instance, object[] __args)
+        {
+            instance = __instance;
+            args = __args;
+            OnHold?.Invoke(__instance, __args);
+        }
+
+        public void Release(T __instance, object[] __args, object __result)
+        {
+            OnRelease?.Invoke(__instance, __args, __result);
+            instance = null;
+            args = null;
+        }
+
+        public Context<T> WithHold(HoldDel del)
+        {
+            OnHold += del;
+            return this;
+        }
+
+        public Context<T> WithRelease(ReleaseDel del)
+        {
+            OnRelease += del;
+            return this;
         }
     }
 
