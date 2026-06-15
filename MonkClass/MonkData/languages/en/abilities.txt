@@ -1,0 +1,42 @@
+; ********************************
+; Monk
+; ********************************
+; Job
+ability-FlurryOfBlows=Flurry of Blows
+ability-FlurryOfBlows-desc=For an added {mp} cost of 10, allows the character to use any {regular-attack} on the target and then take an additional turn. {cleave-no-mp}
+MONK-Title  =Monk
+MONK-Ability=Martial Arts
+MONK-Desc   =These martial artists elevate their bodies to become weapons of war, from battle-minded ascetics to self-taught brawlers.
+
+; Abilities
+MONK-A1     =Stunning Fist
+MONK-A1-desc={damage-single-opener} and delays progress towards their next turn by {locterm}% of its current value.
+
+MONK-A2     =Grapple
+MONK-A2-desc={damage-single} Forces the target to change direction to face the character {add-negative-effect-100-closer}
+
+MONK-A3     =Charge
+MONK-A3-desc={damage-single} If the character has a clear straight line to the target, they can travel any distance. {ignore-cover}
+
+MONK-A4     =Shattering {term-strike}
+MONK-A4-desc={damage-basic-opener} that ignores the target's defense. {counts-as-regular}
+
+MONK-A5     =True {term-strike}
+MONK-A5-desc={damage-single-opener} with 100% accuracy (cannot miss). {bypass-counters}
+
+MONK-A6     =Ki Blast
+MONK-A6-desc={damage-single-opener} and then takes an additional turn. {cleave-no-mp}
+
+MONK-A7     =Sudden Speed
+MONK-A7-desc=The character is granted {addpositive}. {turn-comes-faster} {help-posstatus-fleetoffoot-desc}
+
+; Passives
+MONK-P1     ={ability-FlurryOfBlows}
+MONK-P1-desc={ability-FlurryOfBlows-desc}
+
+MONK-P2     =Empty Body
+MONK-P2-desc=Character is immune to {removenegative}.
+
+; Counter
+MONK-C1     =Opportunity
+MONK-C1-desc={counter-any-offensive-with-positive} A unit with {addpositive} will get a guaranteed {critical-hit} on their next action. {addpositive} will wear off at the end of the next turn even if it wasn't used.

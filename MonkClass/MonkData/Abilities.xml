@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<XMLAbilities>
+    <active>
+        <Ability HashName="MONK-A1" Name="Stunning Fist" MinRange="1" Range="1" RangeHeight="2" Power="0.85" SpecialEffect="kDelayStrike" SpellType="kSkill" />
+        <Ability HashName="MONK-A2" Name="Grapple" MinRange="1" Range="1" RangeHeight="2" Power="0.80" SpellType="kSkill" AddNegativeEffects="kfRoot" AddNegativeEffectsBaseChance="100" />
+        <Ability HashName="MONK-A3" Name="Charge" EffectHash="BOL-01-A1" MinRange="1" Range="1" RangeHeight="1" Size="100" Power="0.85" Shape="kCharge" SpellType="kSkill" ExtraFlags="kIgnoresCover" />
+        <Ability HashName="MONK-A4" Name="Shattering Strike" EffectHash="MERC-A3" MpCost="4" MinRange="1" Power="0.6" DmgType="kNone" SpellType="kSkill" SpecialEffect="kIgnoreDefense" SpecialEffect2="kIsTreatedAsRegularAttack" />
+        <Ability HashName="MONK-A5" Name="True Strike" EffectHash="MERC-A6" MpCost="10" MinRange="1" Power="0.95" SpecialEffect="kBypassCounters" SpecialEffect2="kPerfectAccuracy" SpellType="kSkill" />
+        <Ability HashName="MONK-A6" Name="Ki Blast" EffectHash="PHO-01-A1" MpCost="20" MinRange="1" Range="3" RangeHeight="6.5" Power="1.20" SpellType="kSkill" MonkEffect="ExtraTurn" />
+        <Ability HashName="MONK-A7" Name="Sudden Speed" EffectHash="ROGU-A5" MpCost="10" Range="0" Power3="0.5" Element="kNone" DmgType="kHealing" DmgSource="kMAtk" SpellType="kSkill" AddPositiveEffects="kfFleetOfFoot" ExtraFlags="kGivesQuickTurnFrowPower3" />
+    </active>
+    <passive>
+        <Ability HashName="MONK-P1" Name="Flurry of Blows" MonkEffect="FlurryOfBlows" />
+        <Ability HashName="MONK-P2" Name="Empty Body" RemoveNegativeEffects="kfAtkDown kfDefDown" AddsNonRemovableEffects1="kfPermanentNegativeProtection" />
+    </passive>
+    <counter>
+        <Ability HashName="MONK-C1" Name="Opportunity" AddPositiveEffects="kfBoon" GivesCounter="kOffensiveCounterWithBuff" />
+    </counter>
+</XMLAbilities>
