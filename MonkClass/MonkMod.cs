@@ -243,8 +243,13 @@ namespace MonkClass
             }
         }
 
+        #if NET6_0
+        public static readonly Context<DamageCalculations> DamageCalcApply =
+            AssetLoaderMod.RequestLateContext<DamageCalculations>(nameof(DamageCalculations.Apply), typeof(Il2CppSystem.Collections.Generic.List<BattleCharacter>), typeof(BattleCharacter), typeof(DamageCalculations.DamageResult))
+        #else
         public static readonly Context<DamageCalculations> DamageCalcApply =
             AssetLoaderMod.RequestLateContext<DamageCalculations>(nameof(DamageCalculations.Apply), typeof(List<BattleCharacter>), typeof(BattleCharacter), typeof(DamageCalculations.DamageResult))
+        #endif
                 .WithRelease((instance, args, result) =>
                 {
                     var targets = (List<BattleCharacter>)args[0];
