@@ -276,7 +276,8 @@ namespace FellSealAssetLoader
 
         private static void HoldContext(object __instance, MethodBase __originalMethod, object[] __args)
         {
-            /*Melon<AssetLoaderMod>.Logger.Msg($"Checking for Context for {__instance.GetType()}.{__originalMethod.Name}");
+            var type = __originalMethod.IsStatic ? __originalMethod.DeclaringType : __instance.GetType();
+            /*Melon<AssetLoaderMod>.Logger.Msg($"Checking for Context for {type}.{__originalMethod.Name}");
             foreach (var pair in Contexts)
             {
                 Melon<AssetLoaderMod>.Logger.Msg($"Has {pair.Key} -> {pair.Value}");
@@ -284,23 +285,25 @@ namespace FellSealAssetLoader
             if (Contexts.TryGetValue(ContextKey(__originalMethod), out var val))
             {
                 //Melon<AssetLoaderMod>.Logger.Msg("Context found, handling");
-                typeof(Context<>).MakeGenericType(__instance.GetType()).GetMethod("Hold")?.Invoke(val, new []{__instance, __args});
+                typeof(Context<>).MakeGenericType(type).GetMethod("Hold")?.Invoke(val, new []{__instance, __args});
             }
         }
 
         private static void ReleaseContext(object __instance, MethodBase __originalMethod, object[] __args)
         {
+            var type = __originalMethod.IsStatic ? __originalMethod.DeclaringType : __instance.GetType();
             if (Contexts.TryGetValue(ContextKey(__originalMethod), out var val))
             {
-                typeof(Context<>).MakeGenericType(__instance.GetType()).GetMethod("Release")?.Invoke(val, new []{__instance, __args, null});
+                typeof(Context<>).MakeGenericType(type).GetMethod("Release")?.Invoke(val, new []{__instance, __args, null});
             }
         }
         
         private static void ReleaseReturnContext(object __instance, MethodBase __originalMethod, object[] __args, object __result)
         {
+            var type = __originalMethod.IsStatic ? __originalMethod.DeclaringType : __instance.GetType();
             if (Contexts.TryGetValue(ContextKey(__originalMethod), out var val))
             {
-                typeof(Context<>).MakeGenericType(__instance.GetType()).GetMethod("Release")?.Invoke(val, new []{__instance, __args, __result});
+                typeof(Context<>).MakeGenericType(type).GetMethod("Release")?.Invoke(val, new []{__instance, __args, __result});
             }
         }
     }
@@ -314,6 +317,7 @@ namespace FellSealAssetLoader
         public T instance;
         public object[] args;
         private MethodBase _hook;
+        private bool _held;
 
         public event HoldDel OnHold;
         public event ReleaseDel OnRelease;
@@ -342,25 +346,34 @@ namespace FellSealAssetLoader
 
         public bool Get()
         {
-            return IsRegistered() && instance != null;
+            return IsRegistered() && _held;
         }
 
         public bool Get(out T ctx)
         {
             ctx = instance;
-            return IsRegistered() && instance != null;
+            return IsRegistered() && _held;
+        }
+
+        public bool Get(out T ctx, out object[] __args)
+        {
+            ctx = instance;
+            __args = args;
+            return IsRegistered() && _held;
         }
 
         public void Hold(T __instance, object[] __args)
         {
             instance = __instance;
             args = __args;
+            _held = true;
             OnHold?.Invoke(__instance, __args);
         }
 
         public void Release(T __instance, object[] __args, object __result)
         {
             OnRelease?.Invoke(__instance, __args, __result);
+            _held = false;
             instance = null;
             args = null;
         }
