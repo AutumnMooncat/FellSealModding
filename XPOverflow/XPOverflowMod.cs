@@ -1,38 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using FellSealAssetLoader;
+﻿using FellSealAssetLoader;
 using HarmonyLib;
-
 using MelonLoader;
-using MelonLoader.Utils;
 using XPOverflow;
 
 #if NET6_0
-using Il2Cpp;
 using Il2CppApEngine;
-using Il2CppGame;
 using Il2CppGame.Battle;
 using Il2CppGame.Data;
 using Il2CppGame.Data.DLC1;
 using Il2CppGame.DLC1;
-using IniFile = Il2CppApEngine.IniFile;
-using Il2CppSpriteEngine;
-using Constants = Il2CppSpriteEngine.Constants;
-using Il2CppSystem.Xml.Serialization;
-using XmlLoader = Il2CppApEngine.XmlLoader;
+using Il2CppSystem.Collections.Generic;
 #else
 using ApEngine;
-using Game;
 using Game.Data;
 using Game.Battle;
 using Game.Data.DLC1;
 using Game.DLC1;
-using IniFile = ApEngine.IniFile;
-using SpriteEngine;
-using Constants = SpriteEngine.Constants;
-using System.Xml.Serialization;
+using System.Collections.Generic;
 #endif
 
 [assembly: MelonInfo(typeof(XPOverflowMod), "XP Overflow", "0.0.1", "Autumn Mooncat")]
@@ -50,6 +34,11 @@ namespace XPOverflow
     [HarmonyPatch]
     public class Patches
     {
+        public static Context<Inventory> AddMissionRewardCtx;
+        public static Context<BaseCharacter> LevelUpCtx;
+        public static Context<DamageCalculations> CalculateExpGainCtx;
+        private static int _origExp;
+        
         public static void Init()
         {
             AddMissionRewardCtx = AssetLoaderMod.RequestContext<Inventory>(
@@ -185,10 +174,5 @@ namespace XPOverflow
                     });
             Melon<XPOverflowMod>.Logger.Msg("Patch statics initialized");
         }
-
-        public static Context<Inventory> AddMissionRewardCtx;
-        public static Context<BaseCharacter> LevelUpCtx;
-        public static Context<DamageCalculations> CalculateExpGainCtx;
-        private static int _origExp;
     }
 }
