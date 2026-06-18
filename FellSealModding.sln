@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FellSealAssetLoader", "Fell
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkClass", "MonkClass\MonkClass.csproj", "{97694846-62FC-49F3-862E-F0EA62BC2408}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XPOverflow", "XPOverflow\XPOverflow.csproj", "{697C0584-C2A3-40D2-9F67-0828BF5FA855}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{97694846-62FC-49F3-862E-F0EA62BC2408}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97694846-62FC-49F3-862E-F0EA62BC2408}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97694846-62FC-49F3-862E-F0EA62BC2408}.Release|Any CPU.Build.0 = Release|Any CPU
+		{697C0584-C2A3-40D2-9F67-0828BF5FA855}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{697C0584-C2A3-40D2-9F67-0828BF5FA855}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{697C0584-C2A3-40D2-9F67-0828BF5FA855}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{697C0584-C2A3-40D2-9F67-0828BF5FA855}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
