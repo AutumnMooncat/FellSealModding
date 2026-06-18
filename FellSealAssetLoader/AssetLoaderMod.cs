@@ -256,7 +256,7 @@ namespace FellSealAssetLoader
                 if (hook is MethodInfo info && info.ReturnType != typeof(void))
                 {
                     Melon<AssetLoaderMod>.Instance.HarmonyInstance.Patch(hook,
-                        new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(HoldContext))),
+                        new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(HoldReturnContext))),
                         new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(ReleaseReturnContext)))
                     );
                 }
@@ -274,8 +274,9 @@ namespace FellSealAssetLoader
             }
         }
 
-        private static void HoldContext(object __instance, MethodBase __originalMethod, object[] __args)
+        private static bool HoldContext(object __instance, MethodBase __originalMethod, object[] __args)
         {
+            bool[] run = { true };
             var type = __originalMethod.IsStatic ? __originalMethod.DeclaringType : __instance.GetType();
             /*Melon<AssetLoaderMod>.Logger.Msg($"Checking for Context for {type}.{__originalMethod.Name}");
             foreach (var pair in Contexts)
@@ -285,8 +286,10 @@ namespace FellSealAssetLoader
             if (Contexts.TryGetValue(ContextKey(__originalMethod), out var val))
             {
                 //Melon<AssetLoaderMod>.Logger.Msg("Context found, handling");
-                typeof(Context<>).MakeGenericType(type).GetMethod("Hold")?.Invoke(val, new []{__instance, __args});
+                typeof(Context<>).MakeGenericType(type).GetMethod("Hold")?.Invoke(val, new []{__instance, __args, run, new object[]{null}});
             }
+
+            return run[0];
         }
 
         private static void ReleaseContext(object __instance, MethodBase __originalMethod, object[] __args)
@@ -294,33 +297,52 @@ namespace FellSealAssetLoader
             var type = __originalMethod.IsStatic ? __originalMethod.DeclaringType : __instance.GetType();
             if (Contexts.TryGetValue(ContextKey(__originalMethod), out var val))
             {
-                typeof(Context<>).MakeGenericType(type).GetMethod("Release")?.Invoke(val, new []{__instance, __args, null});
+                typeof(Context<>).MakeGenericType(type).GetMethod("Release")?.Invoke(val, new []{__instance, __args, new object[]{null}});
             }
         }
         
-        private static void ReleaseReturnContext(object __instance, MethodBase __originalMethod, object[] __args, object __result)
+        private static bool HoldReturnContext(object __instance, MethodBase __originalMethod, object[] __args, ref object __result)
         {
+            bool[] run = { true };
+            object[] ret = { __result };
             var type = __originalMethod.IsStatic ? __originalMethod.DeclaringType : __instance.GetType();
             if (Contexts.TryGetValue(ContextKey(__originalMethod), out var val))
             {
-                typeof(Context<>).MakeGenericType(type).GetMethod("Release")?.Invoke(val, new []{__instance, __args, __result});
+                typeof(Context<>).MakeGenericType(type).GetMethod("Hold")?.Invoke(val, new []{__instance, __args, run, ret});
             }
+
+            __result = ret[0];
+            return run[0];
+        }
+        
+        private static void ReleaseReturnContext(object __instance, MethodBase __originalMethod, object[] __args, ref object __result)
+        {
+            object[] ret = { __result };
+            var type = __originalMethod.IsStatic ? __originalMethod.DeclaringType : __instance.GetType();
+            if (Contexts.TryGetValue(ContextKey(__originalMethod), out var val))
+            {
+                typeof(Context<>).MakeGenericType(type).GetMethod("Release")?.Invoke(val, new []{__instance, __args, ret});
+            }
+
+            __result = ret[0];
         }
     }
 
     public class Context<T> where T : class
     {
         public delegate void HoldDel(T __instance, object[] __args);
-
-        public delegate void ReleaseDel(T __instance, object[] __args,  object __result);
+        public delegate void HoldReturnDel(T __instance, object[] __args, bool[] __doRun, object[] __result);
+        
+        public delegate void ReleaseDel(T __instance, object[] __args, object __result);
+        public delegate void ReleaseReturnDel(T __instance, object[] __args, object[] __result);
         
         public T instance;
         public object[] args;
         private MethodBase _hook;
         private bool _held;
 
-        public event HoldDel OnHold;
-        public event ReleaseDel OnRelease;
+        public event HoldReturnDel OnHold;
+        public event ReleaseReturnDel OnRelease;
 
         public void Register(MethodBase hook)
         {
@@ -362,15 +384,15 @@ namespace FellSealAssetLoader
             return IsRegistered() && _held;
         }
 
-        public void Hold(T __instance, object[] __args)
+        public void Hold(T __instance, object[] __args, bool[] __doRunOrig, object[] __result)
         {
             instance = __instance;
             args = __args;
             _held = true;
-            OnHold?.Invoke(__instance, __args);
+            OnHold?.Invoke(__instance, __args, __doRunOrig, __result);
         }
 
-        public void Release(T __instance, object[] __args, object __result)
+        public void Release(T __instance, object[] __args, object[] __result)
         {
             OnRelease?.Invoke(__instance, __args, __result);
             _held = false;
@@ -380,11 +402,23 @@ namespace FellSealAssetLoader
 
         public Context<T> WithHold(HoldDel del)
         {
-            OnHold += del;
+            OnHold += (__instance, __args, orig, result) => del.Invoke(__instance, __args);
             return this;
         }
 
         public Context<T> WithRelease(ReleaseDel del)
+        {
+            OnRelease += (__instance, __args, __result) => del.Invoke(__instance, __args, __result[0]);
+            return this;
+        }
+        
+        public Context<T> WithHoldReturn(HoldReturnDel del)
+        {
+            OnHold += del;
+            return this;
+        }
+
+        public Context<T> WithReleaseReturn(ReleaseReturnDel del)
         {
             OnRelease += del;
             return this;
