@@ -50,11 +50,14 @@ namespace MonkClass
     [HarmonyPatch]
     public class Patches
     {
+        // Calling static method forces static member init on linux
         public static void Init()
         {
+            DidInit = true; // Touching static var forces static member init on windows
             Melon<MonkMod>.Logger.Msg("Patch statics initialized");
         }
-        
+
+        public static bool DidInit; 
         public static readonly string MonkEffect = nameof(MonkEffect);
         public static readonly string FlurryOfBlows = nameof(FlurryOfBlows);
         public static readonly string ExtraTurn = nameof(ExtraTurn);
