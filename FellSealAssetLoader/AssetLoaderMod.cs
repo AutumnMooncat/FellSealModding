@@ -23,6 +23,7 @@ using Il2CppSpriteEngine;
 using Il2CppTMPro;
 using Il2CppSystem.Xml.Serialization;
 using XmlLoader = Il2CppApEngine.XmlLoader;
+using Object = Il2CppSystem.Object;
 #else
 using ApEngine;
 using Game;
@@ -39,13 +40,13 @@ namespace FellSealAssetLoader
 {
     public class AssetLoaderMod : MelonMod
     {
-        public static readonly Dictionary<string, Sprite> UnitySprites = new Dictionary<string, Sprite>();
-        public static readonly Dictionary<string, Texture2D> UnityTextures = new Dictionary<string, Texture2D>();
-        public static readonly Dictionary<object, Dictionary<string, object>> CustomAttributes = new Dictionary<object, Dictionary<string, object>>();
-        public static readonly ConditionalWeakTable<object, Dictionary<string, object>> CustomData =
+        internal static readonly Dictionary<string, Sprite> UnitySprites = new Dictionary<string, Sprite>();
+        internal static readonly Dictionary<string, Texture2D> UnityTextures = new Dictionary<string, Texture2D>();
+        internal static readonly Dictionary<object, Dictionary<string, object>> CustomAttributes = new Dictionary<object, Dictionary<string, object>>();
+        internal static readonly ConditionalWeakTable<object, Dictionary<string, object>> CustomData =
             new ConditionalWeakTable<object, Dictionary<string, object>>();
-        public static readonly Dictionary<Type, Dictionary<string, Enum>> Extensions = new Dictionary<Type, Dictionary<string, Enum>>();
-        public static readonly Dictionary<string, object> Contexts = new Dictionary<string, object>(); 
+        internal static readonly Dictionary<Type, Dictionary<string, Enum>> Extensions = new Dictionary<Type, Dictionary<string, Enum>>();
+        internal static readonly Dictionary<string, object> Contexts = new Dictionary<string, object>(); 
         
         private static bool _earlyHooked;
         private static bool _lateHooked;
@@ -138,6 +139,25 @@ namespace FellSealAssetLoader
         public static Dictionary<string, object> GetCustomData(object o)
         {
             return CustomData.GetOrCreateValue(o);
+        }
+
+        public static bool GetCustomAttributes(object o, out Dictionary<string, object> attr)
+        {
+            #if NET6_0
+            if (o is Object obj)
+            {
+                foreach (var key in CustomAttributes.Keys)
+                {
+                    var maybe = key as Object;
+                    if (obj.Equals(maybe))
+                    {
+                        attr = CustomAttributes[key];
+                        return true;
+                    }
+                }
+            }
+            #endif
+            return CustomAttributes.TryGetValue(o, out attr);
         }
         
         public static void DoOnHook(Action a)

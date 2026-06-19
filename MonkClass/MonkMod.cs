@@ -35,107 +35,176 @@ namespace MonkClass
     [HarmonyPatch]
     public class Patches
     {
-        // Calling static method forces static member init on linux
-        public static void Init()
-        {
-            DidInit = true; // Touching static var forces static member init on windows
-            Melon<MonkMod>.Logger.Msg("Patch statics initialized");
-        }
-
-        public static bool DidInit; 
         public static readonly string MonkEffect = nameof(MonkEffect);
         public static readonly string FlurryOfBlows = nameof(FlurryOfBlows);
         public static readonly string ExtraTurn = nameof(ExtraTurn);
         public static readonly CommandBox.AbilityType kFlurryOfBlows = AssetLoaderMod.RequestExtendedEnum<CommandBox.AbilityType>(nameof(kFlurryOfBlows));
         public static readonly CommandBox.AbilityType kFlurryOfBlowsSelection = AssetLoaderMod.RequestExtendedEnum<CommandBox.AbilityType>(nameof(kFlurryOfBlowsSelection));
-        public static CommandBox.AbilityType GottenChoice;
-        public static CommandBox.Command GottenCommand;
+        public static Context<BaseCharacter> EquipPassiveCtx;
+        public static Context<BaseCharacter> UpdatePassivesAndGearCtx;
+        public static Context<BattleManager> ProcessInputCtx;
+        public static Context<CommandBox> OnCommandBoxSelectCtx;
+        public static Context<CommandBox.CommandPage> GetCommandCtx;
+        public static Context<DamageCalculations> DamageCalcApplyCtx;
+        private static CommandBox.AbilityType _gottenChoice;
+        private static CommandBox.Command _gottenCommand;
         
-        public static readonly Context<BaseCharacter> UpdatePassivesAndGear =
-            AssetLoaderMod.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.UpdatePassivesAndGear))
-                .WithHold((instance, args) =>
-                {
-                    AssetLoaderMod.GetCustomData(instance)[FlurryOfBlows] = false;
-                });
-        
-        public static readonly Context<BaseCharacter> EquipPassive =
-            AssetLoaderMod.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.EquipPassive), typeof(string))
-                .WithRelease((instance, args, result) =>
-                {
-                    var passive = args[0] as string;
-                    if (string.IsNullOrEmpty(passive))
-                        return;
-                    Abilities.Ability ability = Database.GetInstance().GetAbility(passive);
-                    if (AssetLoaderMod.CustomAttributes.TryGetValue(ability, out var attr))
+        public static void Init()
+        {
+            EquipPassiveCtx =
+                AssetLoaderMod.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.EquipPassive), typeof(string))
+                    .WithRelease((instance, args, result) =>
                     {
-                        if (attr.TryGetValue(MonkEffect, out var val))
+                        var passive = args[0] as string;
+                        if (string.IsNullOrEmpty(passive))
+                            return;
+                        Abilities.Ability ability = Database.GetInstance().GetAbility(passive);
+                        if (AssetLoaderMod.GetCustomAttributes(ability, out var attr))
                         {
-                            if (val is string s && s == FlurryOfBlows)
+                            foreach (var pair in attr)
                             {
-                                Melon<MonkMod>.Logger.Msg($"BaseCharacter.EquipPassive Postfix, applied {FlurryOfBlows}");
-                                AssetLoaderMod.GetCustomData(instance)[FlurryOfBlows] = true;
+                                Melon<MonkMod>.Logger.Msg($"Ability has attribute, {pair.Key} -> {pair.Value}");
+                            }
+
+                            if (attr.TryGetValue(MonkEffect, out var val))
+                            {
+                                if (val is string s && s == FlurryOfBlows)
+                                {
+                                    Melon<MonkMod>.Logger.Msg($"BaseCharacter.EquipPassive Postfix, applied {FlurryOfBlows}");
+                                    AssetLoaderMod.GetCustomData(instance)[FlurryOfBlows] = true;
+                                }
                             }
                         }
-                    }
-                });
-        
-        public static readonly Context<BattleManager> ProcessInput =
-            AssetLoaderMod.RequestContext<BattleManager>(nameof(BattleManager.ProcessInput))
-                .WithRelease((instance, args, result) =>
-                {
-                    if (GottenChoice == CommandBox.AbilityType.kNone)
+                    });
+            
+            UpdatePassivesAndGearCtx =
+                AssetLoaderMod.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.UpdatePassivesAndGear))
+                    .WithHold((instance, args) =>
                     {
-                        return;
-                    }
-                    Melon<MonkMod>.Logger.Msg($"BattleManger ProcessInput got choice {GottenChoice}");
-                    if (GottenChoice == kFlurryOfBlows)
+                        AssetLoaderMod.GetCustomData(instance)[FlurryOfBlows] = false;
+                    });
+            
+            ProcessInputCtx =
+                AssetLoaderMod.RequestContext<BattleManager>(nameof(BattleManager.ProcessInput))
+                    .WithRelease((instance, args, result) =>
                     {
-                        GottenChoice = CommandBox.AbilityType.kNone;
-                        var allRegularAttacks = instance.FindAllRegularAttacks(instance.mCurrentActor);
-                        if (allRegularAttacks.Count == 0)
+                        if (_gottenChoice == CommandBox.AbilityType.kNone)
                         {
-                            instance.mSoundManager.SfxPlay(2, Sounds.UI.kErrorButton);
-                            instance.mCommandBox.Show();
                             return;
                         }
-                        instance.SpawnAbilitiesWithMpCostRemoved(allRegularAttacks, kFlurryOfBlowsSelection, 10);
-                        //instance.mCommandBox.LoadAbilitiesList(allRegularAttacks, kFlurryOfBlowsSelection);
-                        //instance.mCommandBox.Show();
-                    } 
-                    else if (GottenChoice == kFlurryOfBlowsSelection)
-                    {
-                        GottenChoice = CommandBox.AbilityType.kNone;
-                        int index = instance.mCommandBox.GetAbilityIndex();
-                        if (index < 0)
+                        Melon<MonkMod>.Logger.Msg($"BattleManger ProcessInput got choice {_gottenChoice}");
+                        if (_gottenChoice == kFlurryOfBlows)
                         {
-                            instance.mCurrentAction = BattleManager.ActionInformation.LoadAttack(instance.mCurrentActor);
-                            var abi = new Abilities.Ability
+                            _gottenChoice = CommandBox.AbilityType.kNone;
+                            var allRegularAttacks = instance.FindAllRegularAttacks(instance.mCurrentActor);
+                            if (allRegularAttacks.Count == 0)
                             {
-                                abilityName = null,
-                                effectName = null,
-                                name = null,
-                                manaCost = 10
-                            };
-                            AssetLoaderMod.GetCustomData(abi)[ExtraTurn] = true;
-                            instance.mCurrentAction.mAbility = abi;
-                        }
-                        else
+                                instance.mSoundManager.SfxPlay(2, Sounds.UI.kErrorButton);
+                                instance.mCommandBox.Show();
+                                return;
+                            }
+                            instance.SpawnAbilitiesWithMpCostRemoved(allRegularAttacks, kFlurryOfBlowsSelection, 10);
+                            //instance.mCommandBox.LoadAbilitiesList(allRegularAttacks, kFlurryOfBlowsSelection);
+                            //instance.mCommandBox.Show();
+                        } 
+                        else if (_gottenChoice == kFlurryOfBlowsSelection)
                         {
-                            instance.CreateAction(CommandBox.AbilityType.kAbility, index);
-                            var clone = instance.mCurrentAction.mAbility.Clone("WORK-FB-" + index);
-                            clone.name = $"{instance.mLocManager.GetTermNoColors($"ability-{FlurryOfBlows}")} + {clone.name}";
-                            clone.manaCost += 10;
-                            AssetLoaderMod.GetCustomData(clone)[ExtraTurn] = true;
-                            instance.mCurrentAction.mAbility = clone;
+                            _gottenChoice = CommandBox.AbilityType.kNone;
+                            int index = instance.mCommandBox.GetAbilityIndex();
+                            if (index < 0)
+                            {
+                                instance.mCurrentAction = BattleManager.ActionInformation.LoadAttack(instance.mCurrentActor);
+                                var abi = new Abilities.Ability
+                                {
+                                    abilityName = null,
+                                    effectName = null,
+                                    name = null,
+                                    manaCost = 10
+                                };
+                                AssetLoaderMod.GetCustomData(abi)[ExtraTurn] = true;
+                                instance.mCurrentAction.mAbility = abi;
+                            }
+                            else
+                            {
+                                instance.CreateAction(CommandBox.AbilityType.kAbility, index);
+                                var clone = instance.mCurrentAction.mAbility.Clone("WORK-FB-" + index);
+                                clone.name = $"{instance.mLocManager.GetTermNoColors($"ability-{FlurryOfBlows}")} + {clone.name}";
+                                clone.manaCost += 10;
+                                AssetLoaderMod.GetCustomData(clone)[ExtraTurn] = true;
+                                instance.mCurrentAction.mAbility = clone;
+                            }
+                            if (instance.mCurrentAction.mExtraCommandBox != Abilities.ExtraCommandBox.kNone)
+                            {
+                                instance.SpawnExtraBox(instance.mCurrentAction.mExtraCommandBox);
+                                return;
+                            }
+                            instance.QueueAbilityProcess();
                         }
-                        if (instance.mCurrentAction.mExtraCommandBox != Abilities.ExtraCommandBox.kNone)
+                    });
+            
+            OnCommandBoxSelectCtx =
+                AssetLoaderMod.RequestContext<CommandBox>(nameof(CommandBox.OnCommandBoxSelect), typeof(int), typeof(GamePadInput.Button))
+                    .WithHold(((instance, args) =>
+                    {
+                        Melon<MonkMod>.Logger.Msg($"Clearing command");
+                        _gottenCommand = null;
+                    }))
+                    .WithRelease(((instance, args, result) =>
+                    {
+                        if (_gottenCommand == null || !_gottenCommand.enabled)
                         {
-                            instance.SpawnExtraBox(instance.mCurrentAction.mExtraCommandBox);
                             return;
                         }
-                        instance.QueueAbilityProcess();
-                    }
-                });
+
+                        Melon<MonkMod>.Logger.Msg($"Did command {_gottenCommand.abilityType}");
+                        if (/*GottenCommand.abilityType == kFlurryOfBlows ||*/
+                            _gottenCommand.abilityType == kFlurryOfBlowsSelection)
+                        {
+                            Melon<MonkMod>.Logger.Msg($"Hiding custom box");
+                            _gottenCommand = null;
+                            instance.Hide();
+                        }
+                    }));
+            
+            GetCommandCtx =
+                AssetLoaderMod.RequestContext<CommandBox.CommandPage>(nameof(CommandBox.CommandPage.GetCommand), typeof(int))
+                    .WithRelease((instance, args, result) =>
+                    {
+                        if (OnCommandBoxSelectCtx.Get())
+                        {
+                            _gottenCommand = (CommandBox.Command)result;
+                            Melon<MonkMod>.Logger.Msg($"Storing command for {_gottenCommand.abilityType}");
+                        }
+                    });
+            
+            DamageCalcApplyCtx =
+                AssetLoaderMod.RequestLateContext<DamageCalculations>(nameof(DamageCalculations.Apply), typeof(List<BattleCharacter>), typeof(BattleCharacter), typeof(DamageCalculations.DamageResult))
+                    .WithRelease((instance, args, result) =>
+                    {
+                        var targets = (List<BattleCharacter>)args[0];
+                        var caster = (BattleCharacter)args[1];
+                        var dmg = (DamageCalculations.DamageResult)args[2];
+                        if (dmg.mAbility == null)
+                        {
+                            return;
+                        }
+                        if (AssetLoaderMod.GetCustomAttributes(dmg.mAbility, out var attr))
+                        {
+                            if (attr.TryGetValue(MonkEffect, out var val) && val is string s && s == ExtraTurn)
+                            {
+                                AssetLoaderMod.GetCustomData(caster)[ExtraTurn] = true;
+                            }
+                        }
+
+                        if (AssetLoaderMod.GetCustomData(dmg.mAbility).TryGetValue(ExtraTurn, out var val2) &&
+                            val2 is bool b && b)
+                        {
+                            AssetLoaderMod.GetCustomData(caster)[ExtraTurn] = true;
+                        }
+                    });
+                
+            Melon<MonkMod>.Logger.Msg("Patch statics initialized");
+        }
 
         /*public static readonly Context<BattleManager> ConfirmAction =
             AssetLoaderMod.RequestContext<BattleManager>(nameof(BattleManager.ConfirmAction));*/
@@ -145,12 +214,12 @@ namespace MonkClass
             public static void Prefix(CommandBox __instance)
             {
                 //Melon<MonkMod>.Logger.Msg($"GetChoice called");
-                if (ProcessInput.Get())
+                if (ProcessInputCtx.Get())
                 {
-                    GottenChoice = __instance.mCurrentAbility;
-                    if (GottenChoice != CommandBox.AbilityType.kNone)
+                    _gottenChoice = __instance.mCurrentAbility;
+                    if (_gottenChoice != CommandBox.AbilityType.kNone)
                     {
-                        Melon<MonkMod>.Logger.Msg($"Storing choice {GottenChoice}");
+                        Melon<MonkMod>.Logger.Msg($"Storing choice {_gottenChoice}");
                     }
                 }
             }
@@ -171,41 +240,6 @@ namespace MonkClass
                         Melon<MonkMod>.Logger.Msg($"Storing choice {GottenChoice}");
                     }
                 });*/
-
-        public static readonly Context<CommandBox> OnCommandBoxSelect =
-            AssetLoaderMod.RequestContext<CommandBox>(nameof(CommandBox.OnCommandBoxSelect), typeof(int), typeof(GamePadInput.Button))
-                .WithHold(((instance, args) =>
-                {
-                    Melon<MonkMod>.Logger.Msg($"Clearing command");
-                    GottenCommand = null;
-                }))
-                .WithRelease(((instance, args, result) =>
-                {
-                    if (GottenCommand == null || !GottenCommand.enabled)
-                    {
-                        return;
-                    }
-
-                    Melon<MonkMod>.Logger.Msg($"Did command {GottenCommand.abilityType}");
-                    if (/*GottenCommand.abilityType == kFlurryOfBlows ||*/
-                        GottenCommand.abilityType == kFlurryOfBlowsSelection)
-                    {
-                        Melon<MonkMod>.Logger.Msg($"Hiding custom box");
-                        GottenCommand = null;
-                        instance.Hide();
-                    }
-                }));
-        
-        public static readonly Context<CommandBox.CommandPage> GetCommand =
-            AssetLoaderMod.RequestContext<CommandBox.CommandPage>(nameof(CommandBox.CommandPage.GetCommand), typeof(int))
-                .WithRelease((instance, args, result) =>
-                {
-                    if (OnCommandBoxSelect.Get())
-                    {
-                        GottenCommand = (CommandBox.Command)result;
-                        Melon<MonkMod>.Logger.Msg($"Storing command for {GottenCommand.abilityType}");
-                    }
-                });
 
         [HarmonyPatch(typeof(CommandBox), nameof(CommandBox.AddRazorWindCommand))]
         public static class AddCommandBoxes
@@ -230,63 +264,6 @@ namespace MonkClass
                 }
             }
         }
-
-        #if NET6_0
-        public static readonly Context<DamageCalculations> DamageCalcApply =
-            AssetLoaderMod.RequestLateContext<DamageCalculations>(nameof(DamageCalculations.Apply), typeof(Il2CppSystem.Collections.Generic.List<BattleCharacter>), typeof(BattleCharacter), typeof(DamageCalculations.DamageResult))
-        #else
-        public static readonly Context<DamageCalculations> DamageCalcApply =
-            AssetLoaderMod.RequestLateContext<DamageCalculations>(nameof(DamageCalculations.Apply), typeof(List<BattleCharacter>), typeof(BattleCharacter), typeof(DamageCalculations.DamageResult))
-        #endif
-                .WithRelease((instance, args, result) =>
-                {
-                    var targets = (List<BattleCharacter>)args[0];
-                    var caster = (BattleCharacter)args[1];
-                    var dmg = (DamageCalculations.DamageResult)args[2];
-                    if (dmg.mAbility == null)
-                    {
-                        return;
-                    }
-                    if (AssetLoaderMod.CustomAttributes.TryGetValue(dmg.mAbility, out var attr))
-                    {
-                        if (attr.TryGetValue(MonkEffect, out var val) && val is string s && s == ExtraTurn)
-                        {
-                            AssetLoaderMod.GetCustomData(caster)[ExtraTurn] = true;
-                        }
-                    }
-
-                    if (AssetLoaderMod.GetCustomData(dmg.mAbility).TryGetValue(ExtraTurn, out var val2) &&
-                        val2 is bool b && b)
-                    {
-                        AssetLoaderMod.GetCustomData(caster)[ExtraTurn] = true;
-                    }
-                });
-
-        /*[HarmonyPatch(typeof(DamageCalculations), nameof(DamageCalculations.Apply))]
-        public static class DamageCalcTransfer
-        {
-            public static void Postfix(DamageCalculations __instance, List<BattleCharacter> targets,
-                BattleCharacter caster, DamageCalculations.DamageResult dmg)
-            {
-                if (dmg.mAbility == null)
-                {
-                    return;
-                }
-                if (AssetLoaderMod.CustomAttributes.TryGetValue(dmg.mAbility, out var attr))
-                {
-                    if (attr.TryGetValue(MonkEffect, out var val) && val is string s && s == ExtraTurn)
-                    {
-                        AssetLoaderMod.GetCustomData(caster)[ExtraTurn] = true;
-                    }
-                }
-
-                if (AssetLoaderMod.GetCustomData(dmg.mAbility).TryGetValue(ExtraTurn, out var val2) &&
-                    val2 is bool b && b)
-                {
-                    AssetLoaderMod.GetCustomData(caster)[ExtraTurn] = true;
-                }
-            }
-        }*/
 
         [HarmonyPatch(typeof(BattleManager), nameof(BattleManager.EndTurn))]
         public static class EndTurnPatch
