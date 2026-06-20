@@ -40,6 +40,8 @@ namespace MonkClass
         public static readonly string ExtraTurn = nameof(ExtraTurn);
         public static readonly CommandBox.AbilityType kFlurryOfBlows = AssetLoaderMod.RequestExtendedEnum<CommandBox.AbilityType>(nameof(kFlurryOfBlows));
         public static readonly CommandBox.AbilityType kFlurryOfBlowsSelection = AssetLoaderMod.RequestExtendedEnum<CommandBox.AbilityType>(nameof(kFlurryOfBlowsSelection));
+        public static readonly CommandBox.KeyCodeIndex kFlurryOfBlowsIndex =
+            AssetLoaderMod.RequestExtendedEnum<CommandBox.KeyCodeIndex>(nameof(kFlurryOfBlowsIndex));
         public static Context<BaseCharacter> EquipPassiveCtx;
         public static Context<BaseCharacter> UpdatePassivesAndGearCtx;
         public static Context<BattleManager> ProcessInputCtx;
@@ -257,7 +259,7 @@ namespace MonkClass
                                 kFlurryOfBlows, 
                                 0, 
                                 isActive, 
-                                CommandBox.KeyCodeIndex.kRazorWind
+                                kFlurryOfBlowsIndex
                                 )
                             );
                     }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <XMLJobs>
     <jobs>
-        <Job ClassName="MONK" WeaponsType="kfSword kfMace kfStaff" ArmorType="kfRobes kfClothHelmet" BonusEvasion="2" BonusCrit="2" BaseMove="14" BaseJump="3" SpeedGrowth="1.2" BaseSpeed="103.33" Hat="mercenary" OutfitM="mage2" OutfitF="mage2">
+        <Job ClassName="MONK" WeaponsType="kfSword kfMace kfStaff" ArmorType="kfRobes kfClothHelmet" BonusEvasion="2" BonusCrit="2" BaseMove="4" BaseJump="3" SpeedGrowth="1.2" BaseSpeed="103.33" Hat="mercenary" OutfitM="mage2" OutfitF="mage2">
             <StatsGrowth Values="4.5 3.5 3.5 3" />
             <HealthGrowth Values="6.5 1.75" />
             <BaseStats Values="43.5 37 38.5 35" />
             <HealthBase Values="79 21" />
             <requirements>
-                <UnlockingRequirement ClassHash="ROGU" Level="1" />
+                <UnlockingRequirement ClassHash="KNIG" Level="5" />
             </requirements>
             <learnables>
                 <Tier>
@@ -16,39 +16,39 @@
                     </SkillTile>
                 </Tier>
                 <Tier>
-                    <SkillTile Cost="0">
+                    <SkillTile Cost="150">
                         <AbilityHash>MONK-A2</AbilityHash>
                     </SkillTile>
-                    <SkillTile Cost="0">
+                    <SkillTile Cost="150">
                         <AbilityHash>MONK-A3</AbilityHash>
                     </SkillTile>
                 </Tier>
                 <Tier>
-                    <SkillTile Cost="0">
+                    <SkillTile Cost="200">
                         <AbilityHash>MONK-A4</AbilityHash>
                     </SkillTile>
-                    <SkillTile Cost="0">
+                    <SkillTile Cost="200">
                         <AbilityHash>MONK-P1</AbilityHash>
                     </SkillTile>
                 </Tier>
                 <Tier>
-                    <SkillTile Cost="0">
+                    <SkillTile Cost="250">
                         <AbilityHash>MONK-A5</AbilityHash>
                     </SkillTile>
-                    <SkillTile Cost="0">
+                    <SkillTile Cost="250">
                         <AbilityHash>MONK-C1</AbilityHash>
                     </SkillTile>
                 </Tier>
                 <Tier>
-                    <SkillTile Cost="0">
+                    <SkillTile Cost="300">
                         <AbilityHash>MONK-A6</AbilityHash>
                     </SkillTile>
-                    <SkillTile Cost="0">
+                    <SkillTile Cost="200">
                         <AbilityHash>MONK-P2</AbilityHash>
                     </SkillTile>
                 </Tier>
                 <Tier>
-                    <SkillTile Cost="0">
+                    <SkillTile Cost="350">
                         <AbilityHash>MONK-A7</AbilityHash>
                     </SkillTile>
                 </Tier>

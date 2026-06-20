@@ -15,7 +15,7 @@ MONK-A1-desc={damage-single-opener} and delays progress towards their next turn 
 MONK-A2     =Grapple
 MONK-A2-desc={damage-single} Forces the target to change direction to face the character {add-negative-effect-100-closer}
 
-MONK-A3     =Charge
+MONK-A3     =Bull Rush
 MONK-A3-desc={damage-single} If the character has a clear straight line to the target, they can travel any distance. {ignore-cover}
 
 MONK-A4     =Shattering {term-strike}
@@ -24,8 +24,8 @@ MONK-A4-desc={damage-basic-opener} that ignores the target's defense. {counts-as
 MONK-A5     =True {term-strike}
 MONK-A5-desc={damage-single-opener} with 100% accuracy (cannot miss). {bypass-counters}
 
-MONK-A6     =Ki Blast
-MONK-A6-desc={damage-single-opener} and then takes an additional turn. {cleave-no-mp}
+MONK-A6     =Meditate
+MONK-A6-desc=The character is granted {addpositive}. A unit with {addpositive} will get a guaranteed {critical-hit} on their next action. {addpositive} will wear off at the end of the next turn even if it wasn't used.
 
 MONK-A7     =Sudden Speed
 MONK-A7-desc=The character is granted {addpositive}. {turn-comes-faster} {help-posstatus-fleetoffoot-desc}
@@ -38,5 +38,5 @@ MONK-P2     =Empty Body
 MONK-P2-desc=Character is immune to {removenegative}.
 
 ; Counter
-MONK-C1     =Opportunity
-MONK-C1-desc={counter-any-offensive-with-positive} A unit with {addpositive} will get a guaranteed {critical-hit} on their next action. {addpositive} will wear off at the end of the next turn even if it wasn't used.
+MONK-C1     =One-Inch Punch
+MONK-C1-desc=Counters with a pushing {regular-attack} any offensive action taken against the character by an adjacent unit.
