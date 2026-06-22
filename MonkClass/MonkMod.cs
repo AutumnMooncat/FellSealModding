@@ -1,8 +1,8 @@
 ﻿using FellSealAssetLoader;
+using FellSealAssetLoader.Util;
 using HarmonyLib;
 using MelonLoader;
 using MonkClass;
-
 
 #if NET6_0
 using Il2Cpp;
@@ -61,7 +61,7 @@ namespace MonkClass
                         if (string.IsNullOrEmpty(passive))
                             return;
                         Abilities.Ability ability = Database.GetInstance().GetAbility(passive);
-                        if (AssetLoaderMod.GetCustomAttributes(ability, out var attr))
+                        if (ability.GetCustomAttributes(out var attr))
                         {
                             foreach (var pair in attr)
                             {
@@ -73,7 +73,7 @@ namespace MonkClass
                                 if (val is string s && s == FlurryOfBlows)
                                 {
                                     Melon<MonkMod>.Logger.Msg($"BaseCharacter.EquipPassive Postfix, applied {FlurryOfBlows}");
-                                    AssetLoaderMod.GetCustomData(instance)[FlurryOfBlows] = true;
+                                    instance.GetCustomFields()[FlurryOfBlows] = true;
                                 }
                             }
                         }
@@ -83,7 +83,7 @@ namespace MonkClass
                 AssetLoaderMod.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.UpdatePassivesAndGear))
                     .WithHold((instance, args) =>
                     {
-                        AssetLoaderMod.GetCustomData(instance)[FlurryOfBlows] = false;
+                        instance.GetCustomFields()[FlurryOfBlows] = false;
                     });
             
             ProcessInputCtx =
@@ -123,7 +123,7 @@ namespace MonkClass
                                     name = null,
                                     manaCost = 10
                                 };
-                                AssetLoaderMod.GetCustomData(abi)[ExtraTurn] = true;
+                                abi.GetCustomFields()[ExtraTurn] = true;
                                 instance.mCurrentAction.mAbility = abi;
                             }
                             else
@@ -132,7 +132,7 @@ namespace MonkClass
                                 var clone = instance.mCurrentAction.mAbility.Clone("WORK-FB-" + index);
                                 clone.name = $"{instance.mLocManager.GetTermNoColors($"ability-{FlurryOfBlows}")} + {clone.name}";
                                 clone.manaCost += 10;
-                                AssetLoaderMod.GetCustomData(clone)[ExtraTurn] = true;
+                                clone.GetCustomFields()[ExtraTurn] = true;
                                 instance.mCurrentAction.mAbility = clone;
                             }
                             if (instance.mCurrentAction.mExtraCommandBox != Abilities.ExtraCommandBox.kNone)
@@ -190,26 +190,24 @@ namespace MonkClass
                         {
                             return;
                         }
-                        if (AssetLoaderMod.GetCustomAttributes(dmg.mAbility, out var attr))
+                        if (dmg.mAbility.GetCustomAttributes(out var attr))
                         {
                             if (attr.TryGetValue(MonkEffect, out var val) && val is string s && s == ExtraTurn)
                             {
-                                AssetLoaderMod.GetCustomData(caster)[ExtraTurn] = true;
+                                caster.GetCustomFields()[ExtraTurn] = true;
                             }
                         }
 
-                        if (AssetLoaderMod.GetCustomData(dmg.mAbility).TryGetValue(ExtraTurn, out var val2) &&
+                        if (dmg.mAbility.GetCustomFields().TryGetValue(ExtraTurn, out var val2) &&
                             val2 is bool b && b)
                         {
-                            AssetLoaderMod.GetCustomData(caster)[ExtraTurn] = true;
+                            caster.GetCustomFields()[ExtraTurn] = true;
                         }
                     });
                 
             Melon<MonkMod>.Logger.Msg("Patch statics initialized");
         }
-
-        /*public static readonly Context<BattleManager> ConfirmAction =
-            AssetLoaderMod.RequestContext<BattleManager>(nameof(BattleManager.ConfirmAction));*/
+        
         [HarmonyPatch(typeof(CommandBox), nameof(CommandBox.GetChoice))]
         public static class GetChoice
         {
@@ -226,29 +224,13 @@ namespace MonkClass
                 }
             }
         }
-        
-        /*public static readonly Context<CommandBox> GetChoice =
-            AssetLoaderMod.RequestContext<CommandBox>(nameof(CommandBox.GetChoice))
-                .WithHold(((instance, args) =>
-                {
-                    Melon<MonkMod>.Logger.Msg($"GetChoice prefix");
-                }))
-                .WithRelease((instance, args, result) =>
-                {
-                    Melon<MonkMod>.Logger.Msg($"GetChoice postfix");
-                    if (ProcessInput.Get())
-                    {
-                        GottenChoice = (CommandBox.AbilityType)result;
-                        Melon<MonkMod>.Logger.Msg($"Storing choice {GottenChoice}");
-                    }
-                });*/
 
         [HarmonyPatch(typeof(CommandBox), nameof(CommandBox.AddRazorWindCommand))]
         public static class AddCommandBoxes
         {
             public static void Postfix(CommandBox __instance, bool isActive)
             {
-                if (AssetLoaderMod.GetCustomData(__instance.mCharacter.character).TryGetValue(FlurryOfBlows, out var val))
+                if (__instance.mCharacter.character.GetCustomFields().TryGetValue(FlurryOfBlows, out var val))
                 {
                     if (val is bool b && b)
                     {
@@ -273,7 +255,7 @@ namespace MonkClass
             public static void Prefix(BattleManager __instance, out bool __state)
             {
                 __state = false;
-                var data = AssetLoaderMod.GetCustomData(__instance.mCurrentActor);
+                var data = __instance.mCurrentActor.GetCustomFields();
                 if (data.TryGetValue(ExtraTurn, out var val) && val is bool b && b)
                 {
                     __state = true;

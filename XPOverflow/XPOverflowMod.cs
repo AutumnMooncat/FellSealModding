@@ -1,4 +1,5 @@
 ﻿using FellSealAssetLoader;
+using FellSealAssetLoader.Util;
 using HarmonyLib;
 using MelonLoader;
 using XPOverflow;
