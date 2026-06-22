@@ -68,15 +68,15 @@ namespace FellSealAssetLoader.Tools
                 if (hook is MethodInfo info && info.ReturnType != typeof(void))
                 {
                     Melon<AssetLoaderMod>.Instance.HarmonyInstance.Patch(hook,
-                        new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(HoldReturnContext))),
-                        new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(ReleaseReturnContext)))
+                        new HarmonyMethod(AccessTools.Method(typeof(ContextTools), nameof(HoldReturnContext))),
+                        new HarmonyMethod(AccessTools.Method(typeof(ContextTools), nameof(ReleaseReturnContext)))
                     );
                 }
                 else
                 {
                     Melon<AssetLoaderMod>.Instance.HarmonyInstance.Patch(hook,
-                        new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(HoldContext))),
-                        new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(ReleaseContext)))
+                        new HarmonyMethod(AccessTools.Method(typeof(ContextTools), nameof(HoldContext))),
+                        new HarmonyMethod(AccessTools.Method(typeof(ContextTools), nameof(ReleaseContext)))
                     );
                 }
             }

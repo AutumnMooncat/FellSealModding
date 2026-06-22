@@ -22,7 +22,7 @@ namespace FellSealAssetLoader.Tools
             EarlyHook();
 
             harmony.Patch(AccessTools.Method(typeof(Platform), nameof(Platform.UpdateLate)),
-                new HarmonyMethod(AccessTools.Method(typeof(AssetLoaderMod), nameof(LateHook))));
+                new HarmonyMethod(AccessTools.Method(typeof(HookTools), nameof(LateHook))));
         }
         
         private static void EarlyHook()
