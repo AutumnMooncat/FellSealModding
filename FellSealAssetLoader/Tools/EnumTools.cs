@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using MelonLoader;
 
 #if NET6_0
-using Il2Cpp;
-using Object = Il2CppSystem.Object;
+using System.Runtime.InteropServices;
+using MelonLoader.NativeUtils;
+using Il2CppInterop.Common;
+using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime.Runtime;
 #else
 #endif
 
@@ -15,32 +19,201 @@ namespace FellSealAssetLoader.Tools
     [HarmonyPatch]
     public class EnumTools
     {
-        private static readonly Dictionary<Type, Dictionary<string, Enum>> Extensions = new Dictionary<Type, Dictionary<string, Enum>>();
+        private static readonly Dictionary<Type, Dictionary<Enum, string>> ExtensionNames = new Dictionary<Type, Dictionary<Enum, string>>();
+        private static readonly Dictionary<Type, Dictionary<Enum, int>> ExtensionBases = new Dictionary<Type, Dictionary<Enum, int>>();
         
-        public static T RequestExtendedEnum<T>(string name) where T : Enum
+        public static unsafe void Init()
         {
-            var type = typeof(T);
-            if (!Extensions.ContainsKey(type))
+            #if NET6_0
+            // Getting the IntPtr for our target method with GetIl2CppMethodInfoPointerFieldForGeneratedMethod
+            IntPtr originalMethod = *(IntPtr*) (IntPtr) Il2CppInteropUtils.GetIl2CppMethodInfoPointerFieldForGeneratedMethod(
+                AccessTools.Method(typeof(Il2CppSystem.Enum), nameof(Il2CppSystem.Enum.ToString), new Type[]{})).GetValue(null);
+            //IntPtr test = AccessTools.Method(typeof(Il2CppSystem.Enum), nameof(Il2CppSystem.Enum.ToString), new Type[] { }).MethodHandle.GetFunctionPointer();
+
+            // Storing our patch method in one of the delegate fields
+            _patchDelegate = ToString;
+
+            // Getting the IntPtr from _patchDelegate
+            IntPtr delegatePointer = Marshal.GetFunctionPointerForDelegate(_patchDelegate);
+
+            // Creating the NativeHook with our target method' IntPtr and patch delegate' IntPtr
+            NativeHook<ToStringDelegate> hook = new NativeHook<ToStringDelegate>(originalMethod, delegatePointer);
+
+            // Very important part, actually telling it to attach and hook into the target method
+            hook.Attach();
+
+            // Storing the hook so we can use the trampoline in it to run the original method in our patch
+            Hook = hook;
+            #endif
+        }
+
+        #if NET6_0
+        // Delegate for our patch, same number of parameters as our patch method
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate IntPtr ToStringDelegate(
+            IntPtr instance,
+            IntPtr methodInfo
+        );
+
+        // Two static fields with our delegate type
+        private static NativeHook<ToStringDelegate> Hook;
+        private static ToStringDelegate _patchDelegate;
+
+        // The patch method, dealing with unmanaged to managed then back to unmanaged, so pointers galore
+        public static unsafe IntPtr ToString(IntPtr instance, IntPtr methodInfo)
+        {
+            IntPtr result = Hook.Trampoline(instance, methodInfo);
+            string name = IL2CPP.PointerToValueGeneric<string>(result, false, false);
+            //Melon<AssetLoaderMod>.Logger.Msg($"Got {name}");
+            Il2CppSystem.Enum maybe = Il2CppObjectPool.Get<Il2CppSystem.Enum>(instance);
+            //Melon<AssetLoaderMod>.Logger.Msg($"From {maybe.GetIl2CppType().Name}");
+            Type lookup = null;
+            foreach (var key in ExtensionNames.Keys)
             {
-                Extensions[type] = new Dictionary<string, Enum>();
+                if (Il2CppType.From(key) == maybe.GetIl2CppType())
+                {
+                    lookup = key;
+                    //Melon<AssetLoaderMod>.Logger.Msg($"Enum has extensions");
+                    break;
+                }
             }
-            if (Extensions[type].TryGetValue(name, out var val))
+            if (lookup != null && ExtensionNames.TryGetValue(lookup, out var names) && ExtensionBases.TryGetValue(lookup, out var bases))
             {
-                return (T) val;
+                foreach (var pair in names)
+                {
+                    //Melon<AssetLoaderMod>.Logger.Msg($"Found extension {pair.Key}");
+                    if (bases.TryGetValue(pair.Key, out var val) && val.ToString().Equals(name))
+                    {
+                        Melon<AssetLoaderMod>.Logger.Msg($"Redirecting {maybe.GetIl2CppType().Name} enum name {name} to {pair.Value}");
+                        return IL2CPP.ManagedStringToIl2Cpp(pair.Value);
+                    }
+                }
             }
             
-            var limit = type.GetEnumValues().Length + Extensions[type].Count;
+            return result;
+        }
+        #endif
+        
+        public static T RequestExtendedEnum<T>(string name) where T : struct, Enum
+        {
+            var type = typeof(T);
+            if (!ExtensionNames.ContainsKey(type))
+            {
+                ExtensionNames[type] = new Dictionary<Enum, string>();
+                ExtensionBases[type] = new Dictionary<Enum, int>();
+            }
+
+            if (ExtensionNames[type].TryGetKey(name, out var key))
+            {
+                return (T) key;
+            }
+            
+            var index = 0;
             var flags = Attribute.IsDefined(type, typeof(FlagsAttribute));
-            if (flags)
+            T ext = default;
+            var val = 0;
+            while (index < int.MaxValue)
             {
-                Extensions[type][name] = (T) Enum.ToObject(type, 1<<limit);
+                val = flags ? 1 << index : 1 + index;
+                if (!Enum.IsDefined(type, val))
+                {
+                    ext = (T) Enum.ToObject(type, val);
+                    break;
+                }
+                index++;
             }
-            else
+
+            if (ext.Equals(default(T)))
             {
-                Extensions[type][name] = (T) Enum.ToObject(type, limit);
+                Melon<AssetLoaderMod>.Logger.BigError($"Failed to create Enum Extension {name} for {type}");
+                return default;
             }
-            Melon<AssetLoaderMod>.Logger.Msg($"Created Extended Enum {name} for {type} -> {Extensions[type][name]}");
-            return (T) Extensions[type][name];
+
+            ExtensionNames[type][ext] = name;
+            ExtensionBases[type][ext] = val;
+            Melon<AssetLoaderMod>.Logger.Msg($"Created Extended Enum {name} for {type} at index {val} -> {ext}");
+            return ext;
+        }
+        
+                
+        [HarmonyPatch(typeof(Enum), nameof(Enum.GetValues), typeof(Type))]
+        public static class FixGetValues
+        {
+            public static void Postfix(ref Array __result, Type enumType)
+            {
+                //Melon<AssetLoaderMod>.Logger.Msg($"Got enum array {__result}({enumType.Name})");
+                if (!ExtensionNames.TryGetValue(enumType, out var extension) || extension.Count == 0)
+                {
+                    return;
+                }
+                //Melon<AssetLoaderMod>.Logger.Msg($"Enum.GetValues extension found");
+                foreach (var extensionValue in extension.Values)
+                {
+                    //Melon<AssetLoaderMod>.Logger.Msg($"-> {extensionValue}");
+                }
+                var vals = extension.Values.ToList();
+                var curr = __result.Length;
+                var ret = Array.CreateInstance(enumType, curr + vals.Count);
+                Array.Copy(__result, ret, curr);
+                for (int i = 0; i < vals.Count; i++)
+                {
+                    ret.SetValue(vals[i], curr + i);
+                }
+
+                __result = ret;
+            }
+        }
+        
+        [HarmonyPatch(typeof(Enum), nameof(Enum.GetNames), typeof(Type))]
+        public static class FixGetNames
+        {
+            public static void Postfix(ref string[] __result, Type enumType)
+            {
+                //Melon<AssetLoaderMod>.Logger.Msg($"Got enum array {__result}({enumType.Name})");
+                if (!ExtensionNames.TryGetValue(enumType, out var extension) || extension.Count == 0)
+                {
+                    return;
+                }
+                //Melon<AssetLoaderMod>.Logger.Msg($"Enum.GetValues extension found");
+                foreach (var extensionValue in extension.Values)
+                {
+                    //Melon<AssetLoaderMod>.Logger.Msg($"-> {extensionValue}");
+                }
+                var vals = extension.Values.ToList();
+                var curr = __result.Length;
+                var ret = new string[curr + vals.Count];
+                Array.Copy(__result, ret, curr);
+                for (int i = 0; i < vals.Count; i++)
+                {
+                    ret.SetValue(vals[i], curr + i);
+                }
+
+                __result = ret;
+            }
+        }
+        
+        [HarmonyPatch(typeof(Enum), nameof(Enum.ToString), new Type[]{})]
+        public static class FixToString
+        {
+            public static void Postfix(Enum __instance, ref string __result)
+            {
+                if (ExtensionNames.TryGetValue(__instance.GetType(), out var names) && names.TryGetValue(__instance, out var name))
+                {
+                    __result = name;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Enum), nameof(Enum.IsDefined), typeof(Type), typeof(object))]
+        public static class FixIsDefined
+        {
+            public static void Postfix(ref bool __result, Type enumType, object value)
+            {
+                if (!__result && value is int i && ExtensionBases.TryGetValue(enumType, out var bases) && bases.ContainsValue(i))
+                {
+                    __result = true;
+                }
+            }
         }
     }
 }

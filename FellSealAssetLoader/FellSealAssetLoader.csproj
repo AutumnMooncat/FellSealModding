@@ -82,6 +82,10 @@
             <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\Il2CppAssemblies\Il2CppSystem.Xml.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="Il2CppInterop.Common" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\net6\Il2CppInterop.Common.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="Il2CppInterop.Runtime" Condition="'$(TargetFramework)' == 'net6.0'">
             <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
             <Private>false</Private>

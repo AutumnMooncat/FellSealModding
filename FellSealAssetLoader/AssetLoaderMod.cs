@@ -19,12 +19,13 @@ namespace FellSealAssetLoader
         public override void OnInitializeMelon()
         {
             LoggerInstance.Msg("Asset Loader initialized");
-            ImageLoader.OnInit(LoggerInstance);
+            ImageLoader.Init(LoggerInstance);
+            EnumTools.Init();
         }
 
         public override void OnDeinitializeMelon()
         {
-            ImageLoader.OnDeinit(LoggerInstance);
+            ImageLoader.Deinit(LoggerInstance);
         }
 
         public override void OnLateInitializeMelon()
@@ -32,7 +33,7 @@ namespace FellSealAssetLoader
             HookTools.Init(HarmonyInstance);
         }
         
-        public static T RequestExtendedEnum<T>(string name) where T : Enum
+        public static T RequestExtendedEnum<T>(string name) where T : struct, Enum
         {
             return EnumTools.RequestExtendedEnum<T>(name);
         }

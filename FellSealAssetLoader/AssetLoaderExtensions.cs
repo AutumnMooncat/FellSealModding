@@ -94,5 +94,19 @@ namespace FellSealAssetLoader
 
             return o.GetCustomFields().Remove(key);
         }
+        
+        public static bool TryGetKey<TKey, TValue>(this Dictionary<TKey, TValue> dict, TValue value, out TKey key)
+        {
+            key = default;
+            foreach (var pair in dict)
+            {
+                if (pair.Value.Equals(value))
+                {
+                    key = pair.Key;
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
