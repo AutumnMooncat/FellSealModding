@@ -20,38 +20,38 @@ namespace FellSealAssetLoader.Loaders
     public static class ConsumableLoader
     {
         [HarmonyPatch(typeof(Consumables), nameof(Consumables.Load))]
-            public static class Prep
+        public static class Prep
+        {
+            public static void Postfix(Consumables __instance)
             {
-                public static void Postfix(Consumables __instance)
+                Melon<AssetLoaderMod>.Logger.Msg("Loading custom crafting");
+                TermsDictionary termsDictionary = ServiceProvider.GetInstance().Get<TermsDictionary>();
+                FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Consumables.xml", xml =>
                 {
-                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom crafting");
-                    TermsDictionary termsDictionary = ServiceProvider.GetInstance().Get<TermsDictionary>();
-                    FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Consumables.xml", xml =>
+                    try
                     {
-                        try
+                        XMLConsumables xmlConsumables = XmlLoader.LoadFromFile<XMLConsumables>(xml);
+                        xmlConsumables.FixUp();
+                        for (int index = 0; index < xmlConsumables.mConsumables.Count; ++index)
                         {
-                            XMLConsumables xmlConsumables = XmlLoader.LoadFromFile<XMLConsumables>(xml);
-                            xmlConsumables.FixUp();
-                            for (int index = 0; index < xmlConsumables.mConsumables.Count; ++index)
-                            {
-                                Consumable con = xmlConsumables.mConsumables[index];
-                                con.name = __instance.mLocManager.GetTermNoColors(con.description);
-                                con.names = __instance.GetNames(con.description);
-                                con.description = __instance.mLocManager.GetTerm(con.description + "-desc");
-                                string upperInvariant = con.hashName.ToUpperInvariant();
-                                if (__instance.mConsumableDict.TryGetValue(upperInvariant, out var found))
-                                    __instance.mAllConsumables.Remove(found);
-                                __instance.mAllConsumables.Add(con);
-                                __instance.mConsumableDict[upperInvariant] = con;
-                            }
+                            Consumable con = xmlConsumables.mConsumables[index];
+                            con.name = __instance.mLocManager.GetTermNoColors(con.description);
+                            con.names = __instance.GetNames(con.description);
+                            con.description = __instance.mLocManager.GetTerm(con.description + "-desc");
+                            string upperInvariant = con.hashName.ToUpperInvariant();
+                            if (__instance.mConsumableDict.TryGetValue(upperInvariant, out var found))
+                                __instance.mAllConsumables.Remove(found);
+                            __instance.mAllConsumables.Add(con);
+                            __instance.mConsumableDict[upperInvariant] = con;
                         }
-                        catch (Exception ex)
-                        {
-                            Melon<AssetLoaderMod>.Logger.Error($"There was an error parsing file: {xml} with exception: {ex}");
-                            __instance.mErrorLoadingFiles = $"{__instance.mErrorLoadingFiles}\n{termsDictionary.ParseStringWithArgs(__instance.mLocManager.GetTermNoColors("options-error-file"), xml)}";
-                        }
-                    });
-                }
+                    }
+                    catch (Exception ex)
+                    {
+                        Melon<AssetLoaderMod>.Logger.Error($"There was an error parsing file: {xml} with exception: {ex}");
+                        __instance.mErrorLoadingFiles = $"{__instance.mErrorLoadingFiles}\n{termsDictionary.ParseStringWithArgs(__instance.mLocManager.GetTermNoColors("options-error-file"), xml)}";
+                    }
+                });
             }
+        }
     }
 }

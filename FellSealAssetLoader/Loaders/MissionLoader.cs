@@ -20,98 +20,98 @@ namespace FellSealAssetLoader.Loaders
     public static class MissionLoader
     {
         private static Missions _context;
-            private static bool _needLoad;
-            private static bool _firstCheck;
+        private static bool _needLoad;
+        private static bool _firstCheck;
 
-            private static void LoadFromContext()
+        private static void LoadFromContext()
+        {
+            if (_context != null)
             {
-                if (_context != null)
+                _needLoad = false;
+                Melon<AssetLoaderMod>.Logger.Msg("Loading custom missions");
+                TermsDictionary termsDictionary = ServiceProvider.GetInstance().Get<TermsDictionary>();
+                FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Missions.xml", xml =>
                 {
-                    _needLoad = false;
-                    Melon<AssetLoaderMod>.Logger.Msg("Loading custom missions");
-                    TermsDictionary termsDictionary = ServiceProvider.GetInstance().Get<TermsDictionary>();
-                    FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Missions.xml", xml =>
+                    try
                     {
-                        try
-                        {
-                            XMLMissions xmlMissions = XmlLoader.LoadFromFile<XMLMissions>(xml);
-                            Missions.AddOrFuse(xmlMissions.mZones, _context.mZones);
-                            Missions.AddOrFuse(xmlMissions.mMissions, _context.mMissions);
-                            Missions.AddOrFuse(xmlMissions.mUpgrades, _context.mUpgrades);
-                            Missions.AddOrFuse(xmlMissions.mHunts, _context.mHunts);
-                            Missions.AddOrFuse(xmlMissions.mRecruits, _context.mRecruits);
-                            Missions.AddOrFuse(xmlMissions.mGroups, _context.mDurationGroups);
-                        }
-                        catch (Exception ex)
-                        {
-                            Melon<AssetLoaderMod>.Logger.Msg($"There was an error parsing file: {xml} with exception: {ex}");
-                            _context.mErrorLoadingFiles = $"{_context.mErrorLoadingFiles}\n{termsDictionary.ParseStringWithArgs(_context.mLocManager.GetTermNoColors("options-error-file"), xml)}";
-                        }
-                    });
-                }
-                else
-                {
-                    Melon<AssetLoaderMod>.Logger.Msg("No context for custom missions");
-                }
+                        XMLMissions xmlMissions = XmlLoader.LoadFromFile<XMLMissions>(xml);
+                        Missions.AddOrFuse(xmlMissions.mZones, _context.mZones);
+                        Missions.AddOrFuse(xmlMissions.mMissions, _context.mMissions);
+                        Missions.AddOrFuse(xmlMissions.mUpgrades, _context.mUpgrades);
+                        Missions.AddOrFuse(xmlMissions.mHunts, _context.mHunts);
+                        Missions.AddOrFuse(xmlMissions.mRecruits, _context.mRecruits);
+                        Missions.AddOrFuse(xmlMissions.mGroups, _context.mDurationGroups);
+                    }
+                    catch (Exception ex)
+                    {
+                        Melon<AssetLoaderMod>.Logger.Msg($"There was an error parsing file: {xml} with exception: {ex}");
+                        _context.mErrorLoadingFiles = $"{_context.mErrorLoadingFiles}\n{termsDictionary.ParseStringWithArgs(_context.mLocManager.GetTermNoColors("options-error-file"), xml)}";
+                    }
+                });
             }
-            
-            [HarmonyPatch(typeof(Missions), nameof(Missions.Load))]
-            public static class Prep
+            else
             {
-                public static void Prefix(Missions __instance)
-                {
-                    _context = __instance;
-                    _needLoad = false;
-                    _firstCheck = true;
-                    //Melon<ModFile>.Logger.Msg("Missions.Load begins, hold context");
-                    FileChecker.Add((path, result) =>
-                    {
-                        if (path.EndsWith("Missions.xml"))
-                        {
-                            if (_firstCheck)
-                            {
-                                _firstCheck = false;
-                                return false;
-                            }
-                            if (!result)
-                            {
-                                LoadFromContext();
-                            }
-                            else
-                            {
-                                Melon<AssetLoaderMod>.Logger.Msg("Missions customdata exists, defer loader");
-                                _needLoad = true;
-                            }
-                            return true;
-                        }
-
-                        if (_context == null)
-                        {
-                            Melon<AssetLoaderMod>.Logger.Msg("Loading failed");
-                            return true;
-                        }
-                        return false;
-                    });
-                }
-
-                public static void Finalizer()
-                {
-                    _context = null;
-                    //Melon<ModFile>.Logger.Msg("Missions.Load ends, release context");
-                }
+                Melon<AssetLoaderMod>.Logger.Msg("No context for custom missions");
             }
+        }
             
-            [HarmonyPatch(typeof(WorldmapZone), nameof(WorldmapZone.Fixup))]
-            public static class GetIfNeeded
+        [HarmonyPatch(typeof(Missions), nameof(Missions.Load))]
+        public static class Prep
+        {
+            public static void Prefix(Missions __instance)
             {
-                public static void Prefix()
+                _context = __instance;
+                _needLoad = false;
+                _firstCheck = true;
+                //Melon<ModFile>.Logger.Msg("Missions.Load begins, hold context");
+                FileChecker.Add((path, result) =>
                 {
-                    if (_needLoad)
+                    if (path.EndsWith("Missions.xml"))
                     {
-                        LoadFromContext();
+                        if (_firstCheck)
+                        {
+                            _firstCheck = false;
+                            return false;
+                        }
+                        if (!result)
+                        {
+                            LoadFromContext();
+                        }
+                        else
+                        {
+                            Melon<AssetLoaderMod>.Logger.Msg("Missions customdata exists, defer loader");
+                            _needLoad = true;
+                        }
+                        return true;
                     }
 
-                }
+                    if (_context == null)
+                    {
+                        Melon<AssetLoaderMod>.Logger.Msg("Loading failed");
+                        return true;
+                    }
+                    return false;
+                });
             }
+
+            public static void Finalizer()
+            {
+                _context = null;
+                //Melon<ModFile>.Logger.Msg("Missions.Load ends, release context");
+            }
+        }
+            
+        [HarmonyPatch(typeof(WorldmapZone), nameof(WorldmapZone.Fixup))]
+        public static class GetIfNeeded
+        {
+            public static void Prefix()
+            {
+                if (_needLoad)
+                {
+                    LoadFromContext();
+                }
+
+            }
+        }
     }
 }
