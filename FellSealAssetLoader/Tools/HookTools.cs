@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FellSealAssetLoader.Util;
 using HarmonyLib;
 using MelonLoader;
 using Action = System.Action;
@@ -17,6 +18,7 @@ namespace FellSealAssetLoader.Tools
         private static readonly List<Action> ToEarlyHook = new List<Action>();
         private static readonly List<Action> ToLateHook = new List<Action>();
 
+        [AssetLateInit]
         public static void Init(HarmonyLib.Harmony harmony)
         {
             EarlyHook();

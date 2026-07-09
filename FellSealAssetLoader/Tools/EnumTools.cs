@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FellSealAssetLoader.Util;
 using HarmonyLib;
 using MelonLoader;
 
@@ -22,6 +23,7 @@ namespace FellSealAssetLoader.Tools
         private static readonly Dictionary<Type, Dictionary<Enum, string>> ExtensionNames = new Dictionary<Type, Dictionary<Enum, string>>();
         private static readonly Dictionary<Type, Dictionary<Enum, int>> ExtensionBases = new Dictionary<Type, Dictionary<Enum, int>>();
         
+        [AssetInit]
         public static unsafe void Init()
         {
             #if NET6_0

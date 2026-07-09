@@ -108,5 +108,13 @@ namespace FellSealAssetLoader
             }
             return false;
         }
+
+        #if NET6_0
+        #else
+        public static bool IsAssignableTo(this Type thisType, Type targetType)
+        {
+            return (object) targetType != null && targetType.IsAssignableFrom(thisType);
+        }
+        #endif
     }
 }

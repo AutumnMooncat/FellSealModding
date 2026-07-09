@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using FellSealAssetLoader;
-using FellSealAssetLoader.Loaders;
 using FellSealAssetLoader.Tools;
 using FellSealAssetLoader.Util;
 using MelonLoader;
@@ -19,18 +18,17 @@ namespace FellSealAssetLoader
         public override void OnInitializeMelon()
         {
             LoggerInstance.Msg("Asset Loader initialized");
-            ImageLoader.Init(LoggerInstance);
-            EnumTools.Init();
+            AttributeProcessor.Run<AssetInitAttribute>(LoggerInstance, HarmonyInstance);
+        }
+        
+        public override void OnLateInitializeMelon()
+        {
+            AttributeProcessor.Run<AssetLateInitAttribute>(LoggerInstance, HarmonyInstance);
         }
 
         public override void OnDeinitializeMelon()
         {
-            ImageLoader.Deinit(LoggerInstance);
-        }
-
-        public override void OnLateInitializeMelon()
-        {
-            HookTools.Init(HarmonyInstance);
+            AttributeProcessor.Run<AssetDeinitAttribute>(LoggerInstance, HarmonyInstance);
         }
         
         public static T RequestExtendedEnum<T>(string name) where T : struct, Enum

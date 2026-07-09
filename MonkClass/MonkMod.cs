@@ -28,7 +28,6 @@ namespace MonkClass
         public override void OnInitializeMelon()
         {
             LoggerInstance.Msg("Monk Class initializing");
-            Patches.Init();
         }
     }
 
@@ -51,6 +50,7 @@ namespace MonkClass
         private static CommandBox.AbilityType _gottenChoice;
         private static CommandBox.Command _gottenCommand;
         
+        [AssetInit]
         public static void Init()
         {
             EquipPassiveCtx =
