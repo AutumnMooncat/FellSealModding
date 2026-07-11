@@ -1,9 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using FellSealAssetLoader.Tools;
+using FellSealAssetLoader.Util;
 
 #if NET6_0
+using Il2CppGame.Data;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Object = Il2CppSystem.Object;
 #else
+using Game.Data;
 #endif
 
 namespace FellSealAssetLoader
@@ -38,6 +44,16 @@ namespace FellSealAssetLoader
         public static Dictionary<string, object> GetCustomFields(this object o)
         {
             return AssetLoaderMod.CustomFields.GetOrCreateValue(o);
+        }
+
+        public static WeaponRegistry GetRegistry(this WeaponsType type)
+        {
+            return RegistryTools.WeaponRegistries.FirstOrDefault(r => r.type.Equals(type));
+        }
+
+        public static ArmorRegistry GetRegistry(this ArmorType type)
+        {
+            return RegistryTools.ArmorRegistries.FirstOrDefault(r => r.type.Equals(type));
         }
 
         public static bool IsExtendedType(this Weapon wp, out WeaponsType type)
@@ -133,7 +149,16 @@ namespace FellSealAssetLoader
             return false;
         }
 
+        public static string ToArrayString<T>(this T[] array)
+        {
+            return array == null ? "" : string.Join(", ", array.Select(t => t.ToString()));
+        }
+
         #if NET6_0
+        public static string ToArrayString(this Il2CppStringArray array)
+        {
+            return array == null ? "" : string.Join(", ", array.Select(t => t.ToString()));
+        }
         #else
         public static bool IsAssignableTo(this Type thisType, Type targetType)
         {
