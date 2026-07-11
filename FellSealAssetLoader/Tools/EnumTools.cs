@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using FellSealAssetLoader.Util;
 using HarmonyLib;
 using MelonLoader;
@@ -20,8 +21,9 @@ namespace FellSealAssetLoader.Tools
     [HarmonyPatch]
     public class EnumTools
     {
-        private static readonly Dictionary<Type, Dictionary<Enum, string>> ExtensionNames = new Dictionary<Type, Dictionary<Enum, string>>();
-        private static readonly Dictionary<Type, Dictionary<Enum, int>> ExtensionBases = new Dictionary<Type, Dictionary<Enum, int>>();
+        internal static readonly Dictionary<Type, Dictionary<Enum, string>> ExtensionNames = new Dictionary<Type, Dictionary<Enum, string>>();
+        internal static readonly Dictionary<Type, Dictionary<Enum, int>> ExtensionBases = new Dictionary<Type, Dictionary<Enum, int>>();
+        internal static readonly Dictionary<Type, Dictionary<string, ShadowField>> ExtensionFields = new Dictionary<Type, Dictionary<string, ShadowField>>();
         
         [AssetInit]
         public static unsafe void Init()
@@ -103,6 +105,7 @@ namespace FellSealAssetLoader.Tools
             {
                 ExtensionNames[type] = new Dictionary<Enum, string>();
                 ExtensionBases[type] = new Dictionary<Enum, int>();
+                ExtensionFields[type] = new Dictionary<string, ShadowField>();
             }
 
             if (ExtensionNames[type].TryGetKey(name, out var key))
@@ -117,7 +120,7 @@ namespace FellSealAssetLoader.Tools
             while (index < int.MaxValue)
             {
                 val = flags ? 1 << index : 1 + index;
-                if (!Enum.IsDefined(type, val))
+                if (!Enum.IsDefined(type, Enum.ToObject(type, val)))
                 {
                     ext = (T) Enum.ToObject(type, val);
                     break;
@@ -131,13 +134,18 @@ namespace FellSealAssetLoader.Tools
                 return default;
             }
 
+            var prototype = type.GetField(Enum.GetName(type, Enum.ToObject(type, 0)));
+            var shadow = new ShadowField(name, prototype)
+            {
+                Value = val
+            };
             ExtensionNames[type][ext] = name;
             ExtensionBases[type][ext] = val;
-            Melon<AssetLoaderMod>.Logger.Msg($"Created Extended Enum {name} for {type} at index {val} -> {ext}");
+            ExtensionFields[type][name] = shadow;
+            Melon<AssetLoaderMod>.Logger.Msg($"Created Extended Enum \"{name}\" for {type} at index {val} -> {ext}");
             return ext;
         }
         
-                
         [HarmonyPatch(typeof(Enum), nameof(Enum.GetValues), typeof(Type))]
         public static class FixGetValues
         {
@@ -153,7 +161,8 @@ namespace FellSealAssetLoader.Tools
                 {
                     //Melon<AssetLoaderMod>.Logger.Msg($"-> {extensionValue}");
                 }
-                var vals = extension.Values.ToList();
+                //Melon<AssetLoaderMod>.Logger.Msg($"Enum.GetValues({enumType}) got array of -> {__result.GetValue(0).GetType()}, trying to insert {extension.Keys.ToArray()[0].GetType()}");
+                var vals = extension.Keys.ToList();
                 var curr = __result.Length;
                 var ret = Array.CreateInstance(enumType, curr + vals.Count);
                 Array.Copy(__result, ret, curr);
@@ -216,6 +225,24 @@ namespace FellSealAssetLoader.Tools
                     __result = true;
                 }
             }
+        }
+
+        [HarmonyPatch(typeof(Type), nameof(Type.GetField), typeof(string))]
+        public static class FixGetField
+        {
+            public static void Postfix(Type __instance, ref FieldInfo __result, string name)
+            {
+                if (ExtensionFields.TryGetValue(__instance, out var fields) && fields.TryGetValue(name, out var field))
+                {
+                    __result = field;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Enum), "TryParseEnum")]
+        public static class FixTryParse
+        {
+            
         }
     }
 }

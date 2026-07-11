@@ -13,6 +13,7 @@ namespace FellSealAssetLoader.Util
         
         public T instance;
         public object[] args;
+        public object state;
         private MethodBase _hook;
         private bool _held;
 

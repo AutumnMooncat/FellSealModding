@@ -17,6 +17,46 @@
             <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\Assembly-CSharp.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="System" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\System.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="System.Core" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\System.Core.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="System.Data" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\System.Data.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="System.Drawing" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\System.Drawing.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="System.IO.Compression" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\System.IO.Compression.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="System.IO.Compression.FileSystem" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\System.IO.Compression.FileSystem.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="System.Numerics" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\System.Numerics.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="System.Runtime.Serialization" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\System.Runtime.Serialization.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="System.Xml" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\System.Xml.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="System.Xml.Linq" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\System.Xml.Linq.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="Unity.TextMeshPro" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
             <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\Unity.TextMeshPro.dll</HintPath>
             <Private>false</Private>
@@ -34,11 +74,27 @@
             <Private>false</Private>
         </Reference>
         <Reference Include="0Harmony" Condition="'$(TargetFramework)' == 'net472'">
-            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net35\0Harmony.dll</HintPath>
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net472\0Harmony.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="MelonLoader" Condition="'$(TargetFramework)' == 'net472'">
-            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net35\MelonLoader.dll</HintPath>
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net472\MelonLoader.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Mono.Cecil" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net472\Mono.Cecil.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="MonoMod.ILHelpers" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net472\MonoMod.ILHelpers.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="MonoMod.RuntimeDetour" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net472\MonoMod.RuntimeDetour.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="MonoMod.Utils" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net472\MonoMod.Utils.dll</HintPath>
             <Private>false</Private>
         </Reference>
 
@@ -68,6 +124,22 @@
         </Reference>
         <Reference Include="MelonLoader" Condition="'$(TargetFramework)' == 'net6.0'">
             <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\net6\MelonLoader.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Mono.Cecil" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net6\Mono.Cecil.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="MonoMod.ILHelpers" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net6\MonoMod.ILHelpers.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="MonoMod.RuntimeDetour" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net6\MonoMod.RuntimeDetour.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="MonoMod.Utils" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net6\MonoMod.Utils.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="Il2Cppmscorlib" Condition="'$(TargetFramework)' == 'net6.0'">

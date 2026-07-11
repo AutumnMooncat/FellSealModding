@@ -39,6 +39,30 @@ namespace FellSealAssetLoader
         {
             return AssetLoaderMod.CustomFields.GetOrCreateValue(o);
         }
+
+        public static bool IsExtendedType(this Weapon wp, out WeaponsType type)
+        {
+            type = default;
+            if (wp == null) return false;
+            if (EnumTools.ExtensionBases.TryGetValue(typeof(WeaponsType), out var bases) && bases.TryGetKey(wp.type, out var key) && key is WeaponsType wt)
+            {
+                type = wt;
+                return true;
+            }
+            return false;
+        }
+        
+        public static bool IsExtendedType(this Armor ar, out ArmorType type)
+        {
+            type = default;
+            if (ar == null) return false;
+            if (EnumTools.ExtensionBases.TryGetValue(typeof(ArmorType), out var bases) && bases.TryGetKey(ar.type, out var key) && key is ArmorType at)
+            {
+                type = at;
+                return true;
+            }
+            return false;
+        }
         
         public static void SetCustomField<T>(this object o, string key, T data)
         {

@@ -57,7 +57,7 @@ namespace FellSealAssetLoader.Tools
 
         private static string ContextKey(string typeName, string methodName, params Type[] paramtypez)
         {
-            return $"{typeName}.{methodName}[{(paramtypez == null ? "" : string.Join(", ", paramtypez.Select(t => t.ToString())))}]";
+            return $"{typeName}.{methodName}({paramtypez.ToArrayString()})";
         }
         
         private static void HookContext<T>(Context<T> context) where T: class

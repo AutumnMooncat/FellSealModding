@@ -35,16 +35,16 @@ namespace FellSealAssetLoader.Util
 
             if (foundParams.Count != neededTypes.Length)
             {
-                Melon<AssetLoaderMod>.Logger.Error($"AttributeProcessor failed to call {method.DeclaringType}.{method.Name} due to missing parameters");
+                Melon<AssetLoaderMod>.Logger.Error($"AttributeProcessor failed to invoke {method.DeclaringType}.{method.Name} due to missing parameters");
                 return;
             }
             
+            Melon<AssetLoaderMod>.Logger.Msg($"AttributeProcessor invoking {method.DeclaringType}.{method.Name}");
             method.Invoke(null, foundParams.ToArray());
-            Melon<AssetLoaderMod>.Logger.Msg($"AttributeProcessor invoked {method.DeclaringType}.{method.Name}");
         }
 
         private static IEnumerable<Type> ValidTypes() => 
-            AppDomain.CurrentDomain.GetAssemblies()
+            MelonAssembly.LoadedAssemblies.Select(ma => ma.Assembly)
                 .SelectMany(assembly => assembly.GetTypes())
                 .Where(t => !Attribute.IsDefined(t, typeof(ProcessorIgnoreAttribute)));
         
