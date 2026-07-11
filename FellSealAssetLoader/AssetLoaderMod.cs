@@ -11,7 +11,7 @@ namespace FellSealAssetLoader
 {
     public class AssetLoaderMod : MelonMod
     {
-        internal static readonly Dictionary<object, Dictionary<string, object>> CustomAttributes = new Dictionary<object, Dictionary<string, object>>();
+        internal static readonly Dictionary<object, Dictionary<string, string>> CustomAttributes = new Dictionary<object, Dictionary<string, string>>();
         internal static readonly ConditionalWeakTable<object, Dictionary<string, object>> CustomFields =
             new ConditionalWeakTable<object, Dictionary<string, object>>();
         

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FellSealAssetLoader.Util;
 using HarmonyLib;
 using MelonLoader;
@@ -18,9 +19,60 @@ namespace FellSealAssetLoader.Loaders
     [HarmonyPatch]
     public static class StoreLoader
     {
+        internal static string CopyToLaterStoreNumbers => nameof(CopyToLaterStoreNumbers);
+        internal static string CopyToLaterStoreIndices => nameof(CopyToLaterStoreIndices);
+        private static readonly List<Store> ToCopyStore = new List<Store>();
+        private static readonly List<Store> ToCopyIndex = new List<Store>();
         private static Stores _context;
         private static bool _needLoad;
         private static bool _loadingDLC;
+
+        [AssetInit]
+        public static void Init()
+        {
+            AssetLoaderEvents.DatabaseInit += db =>
+            {
+                foreach (var source in ToCopyStore)
+                {
+                    var alsoIndex = ToCopyIndex.Contains(source);
+                    foreach (var target in db.GetStoresDb().mStores)
+                    {
+                        if (target.mMapNode > source.mMapNode && (target.mStoryIndex == source.mStoryIndex || (alsoIndex && target.mStoryIndex > source.mStoryIndex)))
+                        {
+                            if (source.add)
+                            {
+                                db.GetStoresDb().FuseStrings(target, source);
+                            }
+                            else
+                            {
+                                target.mItems = source.mItems;
+                            }
+                        }
+                    }
+                }
+                
+                foreach (var source in ToCopyIndex)
+                {
+                    foreach (var target in db.GetStoresDb().mStores)
+                    {
+                        if (target.mMapNode == source.mMapNode && target.mStoryIndex > source.mStoryIndex)
+                        {
+                            if (source.add)
+                            {
+                                db.GetStoresDb().FuseStrings(target, source);
+                            }
+                            else
+                            {
+                                target.mItems = source.mItems;
+                            }
+                        }
+                    }
+                }
+
+                ToCopyIndex.Clear();
+                ToCopyStore.Clear();
+            };
+        }
 
         private static void LoadFromContext()
         {
@@ -99,6 +151,25 @@ namespace FellSealAssetLoader.Loaders
                 if (_needLoad)
                 {
                     LoadFromContext();
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Store), nameof(Store.FixFromXml))]
+        public static class PrepareToCopy
+        {
+            public static void Postfix(Store __instance)
+            {
+                if (__instance.GetCustomAttributes(out var attr))
+                {
+                    if (attr.TryGetValue(CopyToLaterStoreIndices, out var val1) && val1.Equals("true"))
+                    {
+                        ToCopyIndex.Add(__instance);
+                    }
+                    if (attr.TryGetValue(CopyToLaterStoreNumbers, out var val2) && val2.Equals("true"))
+                    {
+                        ToCopyStore.Add(__instance);
+                    }
                 }
             }
         }

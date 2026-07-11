@@ -70,7 +70,7 @@ namespace MonkClass
 
                             if (attr.TryGetValue(MonkEffect, out var val))
                             {
-                                if (val is string s && s == FlurryOfBlows)
+                                if (val == FlurryOfBlows)
                                 {
                                     Melon<MonkMod>.Logger.Msg($"BaseCharacter.EquipPassive Postfix, applied {FlurryOfBlows}");
                                     instance.GetCustomFields()[FlurryOfBlows] = true;
@@ -192,7 +192,7 @@ namespace MonkClass
                         }
                         if (dmg.mAbility.GetCustomAttributes(out var attr))
                         {
-                            if (attr.TryGetValue(MonkEffect, out var val) && val is string s && s == ExtraTurn)
+                            if (attr.TryGetValue(MonkEffect, out var val) && val == ExtraTurn)
                             {
                                 caster.GetCustomFields()[ExtraTurn] = true;
                             }

@@ -16,7 +16,7 @@ namespace FellSealAssetLoader
             return thing;
         }
         
-        public static bool GetCustomAttributes(this object o, out Dictionary<string, object> attr)
+        public static bool GetCustomAttributes(this object o, out Dictionary<string, string> attr)
         {
             #if NET6_0
             if (o is Object obj)

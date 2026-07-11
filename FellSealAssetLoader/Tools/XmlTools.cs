@@ -18,10 +18,10 @@ namespace FellSealAssetLoader.Tools
     {
         public static void Prefix(XmlAttributeEventArgs e)
         {
-            Melon<AssetLoaderMod>.Logger.Msg($"Got unknown attribute {e.attr.Name}:{e.attr.Value} when Deserializing {e.o}");
+            Melon<AssetLoaderMod>.Logger.Msg($"Got custom attribute {e.attr.Name}:{e.attr.Value} when Deserializing {e.o}");
             if (!AssetLoaderMod.CustomAttributes.ContainsKey(e.o))
             {
-                AssetLoaderMod.CustomAttributes[e.o] = new Dictionary<string, object>();
+                AssetLoaderMod.CustomAttributes[e.o] = new Dictionary<string, string>();
             }
             AssetLoaderMod.CustomAttributes[e.o][e.attr.Name] = e.attr.Value;
         }
@@ -34,15 +34,27 @@ namespace FellSealAssetLoader.Tools
         {
             __instance.UnknownAttribute += (sender, args) =>
             {
-                Melon<AssetLoaderMod>.Logger.Msg($"Got unknown attribute {args.Attr.Name}:{args.Attr.Value} when Deserializing {args.ObjectBeingDeserialized}");
+                Melon<AssetLoaderMod>.Logger.Msg($"Got custom attribute {args.Attr.Name}:{args.Attr.Value} when Deserializing {args.ObjectBeingDeserialized}");
                 if (!AssetLoaderMod.CustomAttributes.ContainsKey(args.ObjectBeingDeserialized))
                 {
                     AssetLoaderMod.CustomAttributes[args.ObjectBeingDeserialized] =
-                        new Dictionary<string, object>();
+                        new Dictionary<string, string>();
                 }
 
                 AssetLoaderMod.CustomAttributes[args.ObjectBeingDeserialized][args.Attr.Name] =
                     args.Attr.Value;
+            };
+            __instance.UnknownElement += (sender, args) =>
+            {
+                Melon<AssetLoaderMod>.Logger.Msg($"Got unknown element {args.Element.Name}:{args.Element} but expected {args.ExpectedElements} when Deserializing {args.ObjectBeingDeserialized}");
+            };
+            __instance.UnknownNode += (sender, args) =>
+            {
+                Melon<AssetLoaderMod>.Logger.Msg($"Got unknown node {args.Name}:{args.Text} when Deserializing {args.ObjectBeingDeserialized}");
+            };
+            __instance.UnreferencedObject += (sender, args) =>
+            {
+                Melon<AssetLoaderMod>.Logger.BigError($"Got unreferenced object {args.UnreferencedId} -> {args.UnreferencedObject}, we might explode now");
             };
         }
     }
