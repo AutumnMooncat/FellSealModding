@@ -7,7 +7,6 @@ using FellSealAssetLoader.Util;
 #if NET6_0
 using Il2CppGame.Data;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Object = Il2CppSystem.Object;
 #else
 using Game.Data;
 #endif
@@ -25,16 +24,12 @@ namespace FellSealAssetLoader
         public static bool GetCustomAttributes(this object o, out Dictionary<string, string> attr)
         {
             #if NET6_0
-            if (o is Object obj)
+            foreach (var key in AssetLoaderMod.CustomAttributes.Keys)
             {
-                foreach (var key in AssetLoaderMod.CustomAttributes.Keys)
+                if (o.Il2CppEquals(key))
                 {
-                    var maybe = key as Object;
-                    if (obj.Equals(maybe))
-                    {
-                        attr = AssetLoaderMod.CustomAttributes[key];
-                        return true;
-                    }
+                    attr = AssetLoaderMod.CustomAttributes[key];
+                    return true;
                 }
             }
             #endif
@@ -158,6 +153,20 @@ namespace FellSealAssetLoader
         public static string ToArrayString(this Il2CppStringArray array)
         {
             return array == null ? "" : string.Join(", ", array.Select(t => t.ToString()));
+        }
+
+        public static bool Il2CppEquals(this object thiz, object other)
+        {
+            if (thiz == other || thiz.Equals(other))
+            {
+                return true;
+            }
+
+            if (thiz is Il2CppSystem.Object a && other is Il2CppSystem.Object b && a.Equals(b))
+            {
+                return true;
+            }
+            return false;
         }
         #else
         public static bool IsAssignableTo(this Type thisType, Type targetType)

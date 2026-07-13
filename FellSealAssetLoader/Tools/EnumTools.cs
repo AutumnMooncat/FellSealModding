@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using MelonLoader.NativeUtils;
 using Il2CppInterop.Common;
 using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime.Injection;
 using Il2CppInterop.Runtime.Runtime;
 #else
 #endif
@@ -25,7 +26,7 @@ namespace FellSealAssetLoader.Tools
         internal static readonly Dictionary<Type, Dictionary<Enum, int>> ExtensionBases = new Dictionary<Type, Dictionary<Enum, int>>();
         internal static readonly Dictionary<Type, Dictionary<string, ShadowField>> ExtensionFields = new Dictionary<Type, Dictionary<string, ShadowField>>();
         
-        [AssetInit]
+        //[AssetInit]
         public static unsafe void Init()
         {
             #if NET6_0
@@ -135,13 +136,18 @@ namespace FellSealAssetLoader.Tools
             }
 
             var prototype = type.GetField(Enum.GetName(type, Enum.ToObject(type, 0)));
-            var shadow = new ShadowField(name, prototype)
+            ExtensionNames[type][ext] = name;
+            ExtensionBases[type][ext] = val;
+            ExtensionFields[type][name] = new ShadowField(name, prototype)
             {
                 Value = val
             };
-            ExtensionNames[type][ext] = name;
-            ExtensionBases[type][ext] = val;
-            ExtensionFields[type][name] = shadow;
+            #if NET6_0
+            EnumInjector.InjectEnumValues(type, new Dictionary<string, object>
+            {
+                [name] = ext
+            });
+            #endif
             Melon<AssetLoaderMod>.Logger.Msg($"Created Extended Enum \"{name}\" for {type} at index {val} -> {ext}");
             return ext;
         }
@@ -238,6 +244,73 @@ namespace FellSealAssetLoader.Tools
                 }
             }
         }
+        
+        #if NET6_0
+        [HarmonyPatch(typeof(Il2CppSystem.Xml.Serialization.XmlReflectionImporter), nameof(Il2CppSystem.Xml.Serialization.XmlReflectionImporter.ImportEnumMapping))]
+        public static class Test
+        {
+            public static bool Prefix(
+                Il2CppSystem.Xml.Serialization.XmlReflectionImporter __instance, 
+                ref Il2CppSystem.Xml.Serialization.XmlTypeMapping __result,
+                Il2CppSystem.Xml.Serialization.TypeData typeData, 
+                Il2CppSystem.Xml.Serialization.XmlRootAttribute root,
+                string defaultNamespace)
+            {
+                //Melon<AssetLoaderMod>.Logger.Msg($"XmlReflectionImporter processing {typeData.type}, we might explode");
+                var type = typeData.Type;
+                var registeredClrType = __instance.helper.GetRegisteredClrType(type, __instance.GetTypeNamespace(typeData, root, defaultNamespace));
+                if (registeredClrType != null)
+                {
+                    __result = registeredClrType;
+                    return false;
+                }
+                if (!__instance.allowPrivateTypes)
+                {
+                    Il2CppSystem.Xml.Serialization.ReflectionHelper.CheckSerializableType(type, false);
+                }
+                var typeMapping = __instance.CreateTypeMapping(typeData, root, null, defaultNamespace);
+                typeMapping.IsNullable = false;
+                __instance.helper.RegisterClrType(typeMapping, type, typeMapping.XmlTypeNamespace);
+                var arrayList = new Il2CppSystem.Collections.ArrayList();
+                foreach (var name in Il2CppSystem.Enum.GetNames(type))
+                {
+                    var field = type.GetField(name);
+                    if (field == null)
+                    {
+                        foreach (var pair in ExtensionNames)
+                        {
+                            if (pair.Key.Il2CppEquals(type) && ExtensionNames[pair.Key].TryGetKey(name, out var ext))
+                            {
+                                arrayList.Add(new Il2CppSystem.Xml.Serialization.EnumMap.EnumMapMember(name, name, ExtensionBases[pair.Key][ext]));
+                                break;
+                            }
+                        }
+                    } else if (!field.IsDefined(Il2CppType.Of<Il2CppSystem.Xml.Serialization.XmlIgnoreAttribute>(), false))
+                    {
+                        string xmlName = null;
+                        object[] customAttributes = field.GetCustomAttributes(Il2CppType.Of<Il2CppSystem.Xml.Serialization.XmlEnumAttribute>(), false);
+                        if (customAttributes.Length != 0)
+                            xmlName = ((Il2CppSystem.Xml.Serialization.XmlEnumAttribute) customAttributes[0]).Name;
+                        if (xmlName == null)
+                            xmlName = name;
+                        long int64 = field.GetValue(null).Cast<Il2CppSystem.IConvertible>().ToInt64(Il2CppSystem.Globalization.CultureInfo.InvariantCulture.Cast<Il2CppSystem.IFormatProvider>());
+                        arrayList.Add(new Il2CppSystem.Xml.Serialization.EnumMap.EnumMapMember(xmlName, name, int64));
+                    }
+                }
+
+                var stuff = new Il2CppSystem.Xml.Serialization.EnumMap.EnumMapMember[arrayList.Count];
+                for (var i = 0; i < arrayList.Count; i++)
+                {
+                    stuff[i] = arrayList[i].Cast<Il2CppSystem.Xml.Serialization.EnumMap.EnumMapMember>();
+                }
+                var isFlags = type.IsDefined(Il2CppType.Of<Il2CppSystem.FlagsAttribute>(), false);
+                typeMapping.ObjectMap = new Il2CppSystem.Xml.Serialization.EnumMap(stuff, isFlags);
+                __instance.ImportTypeMapping(Il2CppType.Of<Il2CppSystem.Object>()).DerivedTypes.Add(typeMapping);
+                __result = typeMapping;
+                return false;
+            }
+        }
+        #endif
 
         [HarmonyPatch(typeof(Enum), "TryParseEnum")]
         public static class FixTryParse
