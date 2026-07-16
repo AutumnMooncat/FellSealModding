@@ -49,21 +49,12 @@ namespace MonkClass
         public static Context<CommandBox> OnCommandBoxSelectCtx;
         public static Context<CommandBox.CommandPage> GetCommandCtx;
         public static Context<DamageCalculations> DamageCalcApplyCtx;
-        public static WeaponRegistry VialWeapon;
         private static CommandBox.AbilityType _gottenChoice;
         private static CommandBox.Command _gottenCommand;
         
         [AssetInit]
         public static void Init()
         {
-            VialWeapon = RegistryTools.RegisterWeaponsType("Vial", "icon-vial", WeaponRegistry.Handedness.OneHanded)
-                .WithJobs(
-                    GameConstants.Jobs.Peddler, 
-                    GameConstants.Jobs.Alchemystic, 
-                    GameConstants.Jobs.Anatomist, 
-                    GameConstants.Jobs.PlagueDoctor,
-                    GameConstants.Jobs.Druid)
-                .WithSounds(WeaponsType.kfMace);
             EquipPassiveCtx =
                 AssetLoaderMod.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.EquipPassive), typeof(string))
                     .WithRelease((instance, args, result) =>

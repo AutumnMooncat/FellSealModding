@@ -24,6 +24,7 @@ namespace FellSealAssetLoader.Tools
                 AssetLoaderMod.CustomAttributes[e.o] = new Dictionary<string, string>();
             }
             AssetLoaderMod.CustomAttributes[e.o][e.attr.Name] = e.attr.Value;
+            AssetLoaderEvents.GotXmlCustomAttribute(e.o, e);
         }
     }
     #else
@@ -41,8 +42,8 @@ namespace FellSealAssetLoader.Tools
                         new Dictionary<string, string>();
                 }
 
-                AssetLoaderMod.CustomAttributes[args.ObjectBeingDeserialized][args.Attr.Name] =
-                    args.Attr.Value;
+                AssetLoaderMod.CustomAttributes[args.ObjectBeingDeserialized][args.Attr.Name] = args.Attr.Value;
+                AssetLoaderEvents.GotXmlCustomAttribute(args.ObjectBeingDeserialized, args);
             };
             __instance.UnknownElement += (sender, args) =>
             {

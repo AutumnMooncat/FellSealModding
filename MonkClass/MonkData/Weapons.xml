@@ -1,6 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<XMLWeapons>
-  <Weapons HashName="VIAL-00" Name="Fire Essence" Desc="wp-vial-00" Icon="icon-testvial" Type="vial" Tier="1" Price="400" WeaponSprite="" Range="3" Height="6" Element="kFire">
-    <Stats Values="34 0 0 0" />
-  </Weapons>
-</XMLWeapons>

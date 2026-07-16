@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XMLStores>
+  <Store StoreNumber="0" StoryIndex="0" AddToItems="true" CopyToLaterStoreNumbers="true" CopyToLaterStoreIndices="true">
+    <Items data="VIAL-00,VIAL-01,VIAL-02,VIAL-03,VIAL-04,VIAL-05,VIAL-06,VIAL-07,VIAL-08,VIAL-09,VIAL-10,VIAL-11,VIAL-12,VIAL-13,VIAL-14,VIAL-15" />
+  </Store>
+</XMLStores>

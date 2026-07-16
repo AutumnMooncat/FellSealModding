@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkClass", "MonkClass\Monk
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XPOverflow", "XPOverflow\XPOverflow.csproj", "{697C0584-C2A3-40D2-9F67-0828BF5FA855}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrdinaryOrdnance", "OrdinaryOrdnance\OrdinaryOrdnance.csproj", "{2AF2F214-82A5-4757-98EA-419B2B3E1D37}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{697C0584-C2A3-40D2-9F67-0828BF5FA855}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{697C0584-C2A3-40D2-9F67-0828BF5FA855}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{697C0584-C2A3-40D2-9F67-0828BF5FA855}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AF2F214-82A5-4757-98EA-419B2B3E1D37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AF2F214-82A5-4757-98EA-419B2B3E1D37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AF2F214-82A5-4757-98EA-419B2B3E1D37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AF2F214-82A5-4757-98EA-419B2B3E1D37}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

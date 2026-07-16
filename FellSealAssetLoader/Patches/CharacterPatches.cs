@@ -58,20 +58,5 @@ namespace FellSealAssetLoader.Patches
                     result[0] = valid;
                 });
         }
-
-        [HarmonyPatch(typeof(Weapons), nameof(Weapons.IsTwoHanded))]
-        public static class IsTwoHandedPatch
-        {
-            public static void Postfix(ref bool __result, WeaponsType type)
-            {
-                
-            }
-        } 
-        
-        [HarmonyPatch(typeof(Weapons), nameof(Weapons.IsRealTwoHanded))]
-        public static class IsRealTwoHandedPatch
-        {
-            
-        } 
     }
 }

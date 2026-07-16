@@ -1,7 +1,0 @@
-; **********************
-; Weapons
-; **********************
-; Vials
-gear-Vial       =Vials
-wp-vial-00		=Fire Essence
-wp-vial-00-desc	=Bottled flame for delivery.
