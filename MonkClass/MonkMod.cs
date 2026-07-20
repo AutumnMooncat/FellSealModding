@@ -96,7 +96,7 @@ namespace MonkClass
                         {
                             return;
                         }
-                        Melon<MonkMod>.Logger.Msg($"BattleManger ProcessInput got choice {_gottenChoice}");
+                        //Melon<MonkMod>.Logger.Msg($"BattleManger ProcessInput got choice {_gottenChoice}");
                         if (_gottenChoice == kFlurryOfBlows)
                         {
                             _gottenChoice = CommandBox.AbilityType.kNone;
@@ -150,7 +150,7 @@ namespace MonkClass
                 AssetLoaderMod.RequestContext<CommandBox>(nameof(CommandBox.OnCommandBoxSelect), typeof(int), typeof(GamePadInput.Button))
                     .WithHold(((instance, args) =>
                     {
-                        Melon<MonkMod>.Logger.Msg($"Clearing command");
+                        //Melon<MonkMod>.Logger.Msg($"Clearing command");
                         _gottenCommand = null;
                     }))
                     .WithRelease(((instance, args, result) =>
@@ -160,7 +160,7 @@ namespace MonkClass
                             return;
                         }
 
-                        Melon<MonkMod>.Logger.Msg($"Did command {_gottenCommand.abilityType}");
+                        //Melon<MonkMod>.Logger.Msg($"Did command {_gottenCommand.abilityType}");
                         if (/*GottenCommand.abilityType == kFlurryOfBlows ||*/
                             _gottenCommand.abilityType == kFlurryOfBlowsSelection)
                         {
@@ -177,7 +177,7 @@ namespace MonkClass
                         if (OnCommandBoxSelectCtx.Get())
                         {
                             _gottenCommand = (CommandBox.Command)result;
-                            Melon<MonkMod>.Logger.Msg($"Storing command for {_gottenCommand.abilityType}");
+                            //Melon<MonkMod>.Logger.Msg($"Storing command for {_gottenCommand.abilityType}");
                         }
                     });
             
@@ -207,7 +207,7 @@ namespace MonkClass
                         }
                     });
                 
-            Melon<MonkMod>.Logger.Msg("Patch statics initialized");
+            //Melon<MonkMod>.Logger.Msg("Patch statics initialized");
         }
         
         [HarmonyPatch(typeof(CommandBox), nameof(CommandBox.GetChoice))]
@@ -221,7 +221,7 @@ namespace MonkClass
                     _gottenChoice = __instance.mCurrentAbility;
                     if (_gottenChoice != CommandBox.AbilityType.kNone)
                     {
-                        Melon<MonkMod>.Logger.Msg($"Storing choice {_gottenChoice}");
+                        //Melon<MonkMod>.Logger.Msg($"Storing choice {_gottenChoice}");
                     }
                 }
             }
@@ -282,7 +282,8 @@ namespace MonkClass
     {
         public static void Postfix(SpellEffects __instance)
         {
-            __instance.AddSpell("MONK-A1", new SpellEffect(false).Skilling()
+            __instance.AddSpell("MONK-A1", new SpellEffect(false)
+                .Skilling()
                 .ShowFrame(SpellEffect.Target.kCaster, Constants.Action.kAtk, Constants.LoopType.kOnce, 2)
                 .PlaySound(Sounds.Spells.kSiegeRamHit, 0f, null, 0f, -1f, false)
                 .LoadEffect("HourglassBreak", "HourglassBreakFront01", SpellEffect.Target.kTarget, SpellEffect.Priority.kHigher, true, 1f, SpellEffect.Target.kBank0, Constants.LoopType.kOnce, 1f, SpellEffect.UseDirection.kNone, -1, false)
@@ -297,7 +298,10 @@ namespace MonkClass
                 .Wait(0.1f)
                 .CleanupTarget()
                 .CleanupCaster(SpellEffect.ForceExp.kNormal, false));
-            __instance.AddSpell("MONK-A2", new SpellEffect(false).ShowStillFrame(SpellEffect.Target.kCaster, Constants.Action.kJumpCrouch, 0).LookAt(SpellEffect.Target.kCaster, Constants.Direction.kDefault, 0).Wait(0.25f)
+            __instance.AddSpell("MONK-A2", new SpellEffect(false)
+                .ShowStillFrame(SpellEffect.Target.kCaster, Constants.Action.kJumpCrouch, 0)
+                .LookAt(SpellEffect.Target.kCaster, Constants.Direction.kDefault, 0)
+                .Wait(0.25f)
                 .ShowStillFrame(SpellEffect.Target.kCaster, Constants.Action.kAtkSpear, 3)
                 .MoveSprite(SpellEffect.Target.kCaster, 0.6f, 0.15f, 0f)
                 .Wait(0.15f)
