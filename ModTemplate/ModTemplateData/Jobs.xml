@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<XMLJobs>
+    <jobs>
+        <Job ClassName="TODO" WeaponsType="kfMaul kfSword kfAxe" ArmorType="kfLightArmor kfHeavyArmor kfLightHelmet kfHeavyHelmet kfShield" BonusCrit="2" BaseMove="4" SpeedGrowth="0.83" BaseSpeed="96.67" Hat="mercenary" OutfitM="lightarmor" OutfitF="lightarmor">
+            <StatsGrowth Values="4.5 4 3 3.5" />
+            <HealthGrowth Values="8 1.5" />
+            <BaseStats Values="44 41 31 35" />
+            <HealthBase Values="88 11" />
+            <requirements>
+                <UnlockingRequirement ClassHash="MERC" Level="2" />
+            </requirements>
+            <learnables>
+                <Tier>
+                    <SkillTile Cost="0">
+                        <AbilityHash>TODO-A1</AbilityHash>
+                    </SkillTile>
+                </Tier>
+                <Tier>
+                    <SkillTile Cost="150">
+                        <AbilityHash>TODO-A2</AbilityHash>
+                    </SkillTile>
+                    <SkillTile Cost="150">
+                        <AbilityHash>TODO-A3</AbilityHash>
+                    </SkillTile>
+                </Tier>
+                <Tier>
+                    <SkillTile Cost="200">
+                        <AbilityHash>TODO-A4</AbilityHash>
+                    </SkillTile>
+                    <SkillTile Cost="200">
+                        <AbilityHash>TODO-P1</AbilityHash>
+                    </SkillTile>
+                </Tier>
+                <Tier>
+                    <SkillTile Cost="250">
+                        <AbilityHash>TODO-A5</AbilityHash>
+                    </SkillTile>
+                    <SkillTile Cost="250">
+                        <AbilityHash>TODO-C1</AbilityHash>
+                    </SkillTile>
+                </Tier>
+                <Tier>
+                    <SkillTile Cost="300">
+                        <AbilityHash>TODO-A6</AbilityHash>
+                    </SkillTile>
+                    <SkillTile Cost="200">
+                        <AbilityHash>TODO-P2</AbilityHash>
+                    </SkillTile>
+                </Tier>
+                <Tier>
+                    <SkillTile Cost="350">
+                        <AbilityHash>TODO-A7</AbilityHash>
+                    </SkillTile>
+                </Tier>
+            </learnables>
+            <Mastery hp="5" atk="5" def="5" />
+        </Job>
+    </jobs>
+</XMLJobs>

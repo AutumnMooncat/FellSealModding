@@ -1,0 +1,40 @@
+; ********************************
+; TODO Class
+; ********************************
+; Job
+TODO-Title  =
+TODO-Ability=
+TODO-Desc   =
+
+; Abilities
+TODO-A1     =
+TODO-A1-desc=
+
+TODO-A2     =
+TODO-A2-desc=
+
+TODO-A3     =
+TODO-A3-desc=
+
+TODO-A4     =
+TODO-A4-desc=
+
+TODO-A5     =
+TODO-A5-desc=
+
+TODO-A6     =
+TODO-A6-desc=
+
+TODO-A7     =
+TODO-A7-desc=
+
+; Passives
+TODO-P1     =
+TODO-P1-desc=
+
+TODO-P2     =
+TODO-P2-desc=
+
+; Counter
+TODO-C1     =
+TODO-C1-desc=

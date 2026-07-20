@@ -1,0 +1,20 @@
+{
+  "author": "Autumn Mooncat",
+  "classifications": [ "Library" ],
+  "name": "Fell Seal Mod Template",
+  "identity": "FellSealModTemplate",
+  "shortName": "fellsealmod",
+  "tags": {
+    "language": "C#",
+    "type":"project"
+  },
+  "sourceName": "ModTemplate",
+  "preferNameDirectory": true,
+  "symbols":{
+    "authorName": {
+      "type": "parameter",
+      "defaultValue": "",
+      "replaces":"AuthorName"
+    }
+  }
+}
