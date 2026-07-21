@@ -51,6 +51,16 @@ namespace FellSealAssetLoader
             return RegistryTools.ArmorRegistries.FirstOrDefault(r => r.type.Equals(type));
         }
 
+        public static bool IsExtendedType(this WeaponsType type)
+        {
+            return EnumTools.ExtensionBases.TryGetValue(typeof(WeaponsType), out var bases) && bases.ContainsKey(type);
+        }
+        
+        public static bool IsExtendedType(this ArmorType type)
+        {
+            return EnumTools.ExtensionBases.TryGetValue(typeof(ArmorType), out var bases) && bases.ContainsKey(type);
+        }
+
         public static bool IsExtendedType(this Weapon wp, out WeaponsType type)
         {
             type = default;
@@ -73,6 +83,30 @@ namespace FellSealAssetLoader
                 return true;
             }
             return false;
+        }
+        
+        public static bool HasRegistry(this WeaponsType type, out WeaponRegistry reg)
+        {
+            reg = type.GetRegistry();
+            return reg != null;
+        }
+
+        public static bool HasRegistry(this ArmorType type, out ArmorRegistry reg)
+        {
+            reg = type.GetRegistry();
+            return reg != null;
+        }
+
+        public static bool HasRegistry(this Weapon wp, out WeaponRegistry reg)
+        {
+            reg = ((WeaponsType)wp.type).GetRegistry();
+            return reg != null;
+        }
+
+        public static bool HasRegistry(this Armor ar, out ArmorRegistry reg)
+        {
+            reg = ((ArmorType)ar.type).GetRegistry();
+            return reg != null;
         }
         
         public static void SetCustomField<T>(this object o, string key, T data)

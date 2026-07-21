@@ -12,8 +12,10 @@ using MelonLoader.NativeUtils;
 using Il2CppInterop.Common;
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.Runtime;
+using Il2CppGame.Battle;
 using Il2CppGame.Data;
 #else
+using Game.Battle;
 using Game.Data;
 #endif
 
@@ -37,11 +39,17 @@ namespace FellSealAssetLoader.Util
             TwoHanded,
             TrueTwoHanded
         }
+
+        public delegate string GetAttackHash(BattleCharacter caster);
+        
         public readonly WeaponsType type;
         public readonly string id;
         public readonly string name;
         public readonly string sprite;
         public readonly Handedness handedness;
+        public int minimumRange = 1;
+        public bool canTargetSelf;
+        public GetAttackHash attackHash;
 
         public WeaponRegistry(MelonInfoAttribute modInfo, WeaponsType type, string id, string name, string sprite, Handedness handedness) : base(modInfo)
         {
@@ -50,6 +58,24 @@ namespace FellSealAssetLoader.Util
             this.name = name;
             this.sprite = sprite;
             this.handedness = handedness;
+        }
+
+        public WeaponRegistry WithAttackHash(GetAttackHash attackHash)
+        {
+            this.attackHash = attackHash;
+            return this;
+        }
+
+        public WeaponRegistry WithMinimumRange(int minimumRange)
+        {
+            this.minimumRange = minimumRange;
+            return this;
+        }
+
+        public WeaponRegistry WithSelfTargeting(bool canTargetSelf = true)
+        {
+            this.canTargetSelf = canTargetSelf;
+            return this;
         }
         
         public WeaponRegistry WithJobs(params string[] jobs)
