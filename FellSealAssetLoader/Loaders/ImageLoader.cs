@@ -11,9 +11,11 @@ using Sprite = UnityEngine.Sprite;
 #if NET6_0
 using Il2CppSpriteEngine;
 using Il2CppTMPro;
+using Il2CppApEngine;
 #else
 using SpriteEngine;
 using TMPro;
+using ApEngine;
 #endif
 
 namespace FellSealAssetLoader.Loaders
@@ -41,8 +43,7 @@ namespace FellSealAssetLoader.Loaders
                         logger.Warning("Sprite name collision on "+name);
                     }
                     
-                    var spr = Sprite.Create(tex2D, new Rect(0f, 0f, tex2D.width, tex2D.height),
-                        new Vector2(tex2D.width / 2f, tex2D.height / 2f));
+                    var spr = Sprite.Create(tex2D, new Rect(0f, 0f, tex2D.width, tex2D.height), new Vector2(0.5f, 0.5f), 1f);
                     spr.name = name;
                     UnitySprites[name] = spr; 
                     UnityTextures[name] = tex2D;
@@ -71,51 +72,57 @@ namespace FellSealAssetLoader.Loaders
             TMPStitching.Stitched = false;
         }
         
-        [HarmonyPatch(typeof(Loader), nameof(Loader.LoadSprite), typeof(string))]
-        public static class SpriteAsset
+        [HarmonyPatch(typeof(Loader), nameof(Loader.Load))]
+        public static class LoaderLoad
         {
-            public static bool Prefix(Loader __instance, ref Sprite __result, string assetName)
+            public static void Postfix(Loader __instance, Sheet __result, string assetName)
             {
-                //Melon<ModFile>.Logger.Msg("Loading sprite asset "+assetName);
-                if (UnitySprites.TryGetValue(assetName, out var spr))
+                if (__result == null || assetName == null)
                 {
-                    //Melon<ModFile>.Logger.Msg("Got custom sprite asset "+assetName);
-                    __result = spr;
-                    return false;
+                    return;
                 }
-                return true;
-            }
-        }
-
-        [HarmonyPatch(typeof(Loader), nameof(Loader.LoadSprite), typeof(string), typeof(string))]
-        public static class SpriteAssetAction
-        {
-            public static bool Prefix(Loader __instance, ref Sprite __result, string assetName, string actionName)
-            {
-                //Melon<ModFile>.Logger.Msg("Loading sprite asset action "+assetName+"."+actionName);
-                if (UnitySprites.TryGetValue(actionName, out var spr))
+                if (assetName.ToLowerInvariant() == "menugeneric" && (!__result.GetCustomField("SpriteInjected", out bool b) || !b))
                 {
-                    //Melon<ModFile>.Logger.Msg("Got custom sprite asset action "+assetName+"."+actionName);
-                    __result = spr;
-                    return false;
+                    Melon<AssetLoaderMod>.Logger.Msg($"Injecting Sprites into MenuGeneric Sheet");
+                    __result.SetCustomField("SpriteInjected", true);
+                    var proto = __result.actionsDictionary["icon-rock"];
+                    var toInject = new Sprite[UnitySprites.Count];
+                    var i = 0;
+                    foreach (var pair in UnitySprites)
+                    {
+                        //Melon<AssetLoaderMod>.Logger.Msg($"Preparing Sprite {i}: {pair.Key} -> ({pair.Value.texture.width},{pair.Value.texture.height})");
+                        toInject[i] = pair.Value;
+                        __result.actionsDictionary[pair.Key] = new ActionData
+                        {
+                            name = pair.Key,
+                            frameStart = __result.frames.Length + i,
+                            frames = proto.frames,
+                            loopType = proto.loopType,
+                            originalWidth = pair.Value.texture.width,
+                            originalHeight = pair.Value.texture.height,
+                            duration = proto.duration,
+                            directionStyle = proto.directionStyle,
+                            durationPerFrame = proto.durationPerFrame
+                        };
+                        __result.actionsDictionary[pair.Key].framesOffsets[0] = new ActionData.FramesOffsets { offsets = new[] { new Coordinates(0, 0) } };
+                        i++;
+                    }
+                    //Melon<AssetLoaderMod>.Logger.Msg($"Finalizing injection");
+                    #if NET6_0
+                    var newFrames = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<Sprite>(__result.frames.Length + toInject.Length);
+                    for (var j = 0; j < __result.frames.Count; j++)
+                    {
+                        newFrames[j] = __result.frames[j];
+                    }
+                    for (var k = 0; k < toInject.Length; k++)
+                    {
+                        newFrames[__result.frames.Length + k] = toInject[k];
+                    }
+                    __result.frames = newFrames;
+                    #else
+                    __result.frames = __result.frames.AddRangeToArray(toInject);
+                    #endif
                 }
-                return true;
-            }
-        }
-
-        [HarmonyPatch(typeof(Loader), nameof(Loader.LoadRawSprite))]
-        public static class SpriteAssetRaw
-        {
-            public static bool Prefix(Loader __instance, ref Sprite __result, string assetName)
-            {
-                //Melon<ModFile>.Logger.Msg("Loading raw sprite asset "+assetName);
-                if (UnitySprites.TryGetValue(assetName, out var spr))
-                {
-                    //Melon<ModFile>.Logger.Msg("Got custom raw sprite asset "+assetName);
-                    __result = spr;
-                    return false;
-                }
-                return true;
             }
         }
 
@@ -129,7 +136,7 @@ namespace FellSealAssetLoader.Loaders
                 if (!Stitched)
                 {
                     Stitched = true;
-                    if (!UnitySprites.Any())
+                    if (!UnitySprites.Values.Any(s => s.name.StartsWith("icon-")))
                     {
                         return;
                     }
@@ -152,6 +159,10 @@ namespace FellSealAssetLoader.Loaders
                     }
                     foreach (var spr in UnitySprites.Values)
                     {
+                        if (!spr.name.StartsWith("icon-"))
+                        {
+                            continue;
+                        }
                         textures.Add(spr.texture);
                         var tmpSpr = new TMP_Sprite
                         {

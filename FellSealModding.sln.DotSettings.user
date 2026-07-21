@@ -151,9 +151,6 @@
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AXmlSerializer_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002Econfig_003FJetBrains_003FRider2026_002E1_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003Ff425172439604e0b8ccdb73de59273751a5600_003F25_003F09ba7a27_003FXmlSerializer_002Ecs_002Fz_003A2_002D1/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AXMLStore_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002Econfig_003FJetBrains_003FRider2026_002E1_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003F064c0d7dff24411f97b9810999abfcc23aa400_003F1b_003Fa67f2593_003FXMLStore_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AXMLWeapons_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002Econfig_003FJetBrains_003FRider2026_002E1_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003F064c0d7dff24411f97b9810999abfcc23aa400_003F26_003Fc0dd15c8_003FXMLWeapons_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
-	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;
-  &lt;Assembly Path="/extra/SteamLibrary/steamapps/common/Fell Seal/Fell Seal_Data/Managed/System.Xml.dll" /&gt;
-  &lt;Assembly Path="/home/autumn/RiderProjects/FellSealModding/FellSealAssetLoader/obj/Debug/net472/publicized/Assembly-CSharp.dll" /&gt;
-&lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer /&gt;</s:String>
 	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=e3f1d47c_002Db739_002D4118_002Dbc9b_002Da64cd5368933_0023ModTemplate/@EntryIndexedValue">True</s:Boolean>
 	</wpf:ResourceDictionary>

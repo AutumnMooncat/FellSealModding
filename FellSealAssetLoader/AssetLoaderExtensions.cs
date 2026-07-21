@@ -184,7 +184,7 @@ namespace FellSealAssetLoader
         }
 
         #if NET6_0
-        public static string ToArrayString(this Il2CppStringArray array)
+        public static string ToArrayString<T>(this Il2CppArrayBase<T> array)
         {
             return array == null ? "" : string.Join(", ", array.Select(t => t.ToString()));
         }
