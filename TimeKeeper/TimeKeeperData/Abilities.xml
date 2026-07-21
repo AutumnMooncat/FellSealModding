@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<XMLAbilities>
+    <active>
+        <Ability HashName="TODO-A1" Name="" EffectHash="" />
+        <Ability HashName="TODO-A2" Name="" EffectHash="" />
+        <Ability HashName="TODO-A3" Name="" EffectHash="" />
+        <Ability HashName="TODO-A4" Name="" EffectHash="" />
+        <Ability HashName="TODO-A5" Name="" EffectHash="" />
+        <Ability HashName="TODO-A6" Name="" EffectHash="" />
+        <Ability HashName="TODO-A7" Name="" EffectHash="" />
+    </active>
+    <passive>
+        <Ability HashName="TODO-P1" Name="" />
+        <Ability HashName="TODO-P2" Name="" />
+    </passive>
+    <counter>
+        <Ability HashName="TODO-C1" Name="" />
+    </counter>
+</XMLAbilities>

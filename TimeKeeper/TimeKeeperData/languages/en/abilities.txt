@@ -1,0 +1,245 @@
+; ********************************
+; Time Keeper
+; ********************************
+; Job
+TIME-Title  =Time Keeper
+TIME-Ability=Chronomancy
+TIME-Desc   =These paradoxical warriors have learned that some rules are mere suggestions to those capable of temporal and spatial manipulation.
+
+; Abilities
+TIME-A1     =Quicken (copy)
+TIME-A1-desc=
+
+TIME-A2     ={haste-spell}
+TIME-A2-desc={status-pos-single} {help-posstatus-Haste-desc}
+
+TIME-A3     =Slow (copy)
+TIME-A3-desc=
+
+TIME-A4     =Stop
+TIME-A4-desc=
+
+TIME-A5     =Gravity
+TIME-A5-desc=
+
+TIME-A6     =Lightspeed
+TIME-A6-desc=
+
+TIME-A7     =Rewind
+TIME-A7-desc=Attack and return to starting tile?
+
+; Passives
+TIME-P1     =Overextend (Telekinesis) / Far Sight?
+TIME-P1-desc=
+
+TIME-P2     =Translocate
+TIME-P2-desc=
+
+; Counter
+TIME-C1     =Slow (copy)
+TIME-C1-desc=
+
+; ********************************
+; Chemist
+; ********************************
+; Job
+CHEM-Title  =Chemist
+CHEM-Ability=
+CHEM-Desc   =
+
+; Abilities
+CHEM-A1     =
+CHEM-A1-desc=
+
+CHEM-A2     =
+CHEM-A2-desc=
+
+CHEM-A3     =
+CHEM-A3-desc=
+
+CHEM-A4     =
+CHEM-A4-desc=
+
+CHEM-A5     =
+CHEM-A5-desc=
+
+CHEM-A6     =
+CHEM-A6-desc=
+
+CHEM-A7     =
+CHEM-A7-desc=
+
+; Passives
+CHEM-P1     =
+CHEM-P1-desc=
+
+CHEM-P2     =
+CHEM-P2-desc=
+
+; Counter
+CHEM-C1     =Weaken (copy)
+CHEM-C1-desc=
+
+; ********************************
+; Dragoon
+; ********************************
+; Job
+DRAG-Title  =Dragoon
+DRAG-Ability=
+DRAG-Desc   =
+
+; Abilities
+DRAG-A1     =
+DRAG-A1-desc=
+
+DRAG-A2     =
+DRAG-A2-desc=
+
+DRAG-A3     =
+DRAG-A3-desc=
+
+DRAG-A4     =
+DRAG-A4-desc=
+
+DRAG-A5     =
+DRAG-A5-desc=
+
+DRAG-A6     =
+DRAG-A6-desc=
+
+DRAG-A7     =
+DRAG-A7-desc=
+
+; Passives
+DRAG-P1     =
+DRAG-P1-desc=
+
+DRAG-P2     =
+DRAG-P2-desc=
+
+; Counter
+DRAG-C1     =Pounce (copy)
+DRAG-C1-desc=
+
+; ********************************
+; Sniper
+; ********************************
+; Job
+SNIP-Title  =Sniper
+SNIP-Ability=
+SNIP-Desc   =
+
+; Abilities
+SNIP-A1     =
+SNIP-A1-desc=
+
+SNIP-A2     =
+SNIP-A2-desc=
+
+SNIP-A3     =
+SNIP-A3-desc=
+
+SNIP-A4     =
+SNIP-A4-desc=
+
+SNIP-A5     =
+SNIP-A5-desc=
+
+SNIP-A6     =
+SNIP-A6-desc=
+
+SNIP-A7     =
+SNIP-A7-desc=
+
+; Passives
+SNIP-P1     =Overextend (Telekinesis)?
+SNIP-P1-desc=
+
+SNIP-P2     =
+SNIP-P2-desc=
+
+; Counter
+SNIP-C1     =Cripple (copy)
+SNIP-C1-desc=
+
+; ********************************
+; Sword Saint
+; ********************************
+; Job
+SWRD-Title  =Sword Saint
+SWRD-Ability=
+SWRD-Desc   =
+
+; Abilities
+SWRD-A1     =
+SWRD-A1-desc=
+
+SWRD-A2     =
+SWRD-A2-desc=
+
+SWRD-A3     =
+SWRD-A3-desc=
+
+SWRD-A4     =
+SWRD-A4-desc=
+
+SWRD-A5     =
+SWRD-A5-desc=
+
+SWRD-A6     =
+SWRD-A6-desc=
+
+SWRD-A7     =
+SWRD-A7-desc=
+
+; Passives
+SWRD-P1     =Overextend (Telekinesis)?
+SWRD-P1-desc=
+
+SWRD-P2     =
+SWRD-P2-desc=
+
+; Counter
+SWRD-C1     =Mute (copy)
+SWRD-C1-desc=
+
+; ********************************
+; Shogun
+; ********************************
+; Job
+SHOG-Title  =Shogun
+SHOG-Ability=
+SHOG-Desc   =
+
+; Abilities
+SHOG-A1     =
+SHOG-A1-desc=
+
+SHOG-A2     =
+SHOG-A2-desc=
+
+SHOG-A3     =
+SHOG-A3-desc=
+
+SHOG-A4     =
+SHOG-A4-desc=
+
+SHOG-A5     =
+SHOG-A5-desc=
+
+SHOG-A6     =
+SHOG-A6-desc=
+
+SHOG-A7     =
+SHOG-A7-desc=
+
+; Passives
+SHOG-P1     =
+SHOG-P1-desc=
+
+SHOG-P2     =
+SHOG-P2-desc=
+
+; Counter
+SHOG-C1     =Bleed (copy)
+SHOG-C1-desc=
