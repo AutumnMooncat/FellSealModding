@@ -8,15 +8,19 @@
     </Weapons>
     <Weapons HashName="VIAL-02" Name="Ice Essence" Desc="wp-vial-02" Icon="icon-iceessence" Type="vial" Tier="3" Price="2500" WeaponSprite="" Range="3" Height="6" Shape="kCross" ShapeSize="3" Element="kWater">
         <Stats Values="40 0 12 0" />
+        <ElementalResist Values="0 50 0 0 0 0" />
     </Weapons>
     <Weapons HashName="VIAL-03" Name="Flame Essence" Desc="wp-vial-03" Icon="icon-flameessence" Type="vial" Tier="3" Price="2500" WeaponSprite="" Range="3" Height="6" Shape="kCross" ShapeSize="3" Element="kFire">
         <Stats Values="40 0 12 0" />
+        <ElementalResist Values="50 0 0 0 0 0" />
     </Weapons>
     <Weapons HashName="VIAL-04" Name="Stone Essence" Desc="wp-vial-04" Icon="icon-stoneessence" Type="vial" Tier="3" Price="2500" WeaponSprite="" Range="3" Height="6" Shape="kCross" ShapeSize="3" Element="kEarth">
         <Stats Values="40 0 12 0" />
+        <ElementalResist Values="0 0 0 50 0 0" />
     </Weapons>
     <Weapons HashName="VIAL-05" Name="Bolt Essence" Desc="wp-vial-05" Icon="icon-boltessence" Type="vial" Tier="3" Price="2500" WeaponSprite="" Range="3" Height="6" Shape="kCross" ShapeSize="3" Element="kThunder">
         <Stats Values="40 0 12 0" />
+        <ElementalResist Values="0 0 50 0 0 0" />
     </Weapons>
     <Weapons HashName="VIAL-06" Name="Elixir" Desc="wp-vial-06" Icon="icon-elixir" Type="vial" Tier="4" Price="3800" WeaponSprite="" Range="3" Height="6" PositiveEffectsAdd="kfRenew" Special="kHealing">
         <Stats Values="56 0 6 0" />
@@ -24,11 +28,11 @@
     <Weapons HashName="VIAL-07" Name="Mystery Glue" Desc="wp-vial-07" Icon="icon-mysteryglue" Type="vial" Tier="4" Price="4000" WeaponSprite="" Range="3" Height="6" Shape="kCross" ShapeSize="3" NegativeEffectsGive="kfRoot" NegativeEffectsGiveChance="62">
         <Stats Values="46 0 16 0" />
     </Weapons>
-    <Weapons HashName="VIAL-08" Name="Holy Water" Desc="wp-vial-08" Icon="icon-holywater" Type="vial" Tier="5" Price="5500" WeaponSprite="" Range="1" Height="6" Shape="kCone" Element="kHoly">
+    <Weapons HashName="VIAL-08" Name="Holy Water" Desc="wp-vial-08" Icon="icon-holywater" Type="vial" Tier="5" Price="5500" WeaponSprite="" Range="1" Height="6" Shape="kHline" ShapeSize="3" PosStyle="kLine" Element="kHoly">
         <Stats Values="52 0 20 0" />
         <ElementalResist Values="0 0 0 0 50 0" />
     </Weapons>
-    <Weapons HashName="VIAL-09" Name="Unholy Water" Desc="wp-vial-09" Icon="icon-unholywater" Type="vial" Tier="5" Price="5500" WeaponSprite="" Range="1" Height="6" Shape="kCone" Element="kDark">
+    <Weapons HashName="VIAL-09" Name="Unholy Water" Desc="wp-vial-09" Icon="icon-unholywater" Type="vial" Tier="5" Price="5500" WeaponSprite="" Range="1" Height="6" Shape="kHline" ShapeSize="3" PosStyle="kLine" Element="kDark">
         <Stats Values="52 0 20 0" />
         <ElementalResist Values="0 0 0 0 0 50" />
     </Weapons>
@@ -44,7 +48,7 @@
     <Weapons HashName="VIAL-13" Name="Slime Goo" Desc="wp-vial-13" Icon="icon-slimegoo" Type="vial" Tier="8" Price="17000" WeaponSprite="" Range="3" Height="6" Shape="kCross" ShapeSize="3" NegativeEffectsGive="kfSlow" NegativeEffectsGiveChance="50">
         <Stats Values="66 0 34 0" />
     </Weapons>
-    <Weapons HashName="VIAL-14" Name="Jar of Tar" Desc="wp-vial-14" Icon="icon-tarjar" Type="vial" Tier="8" Price="18000" WeaponSprite="" Range="3" Height="6" Shape="kCone" PosStyle="kLine" NegativeEffectsGive="kfCripple kfMute" NegativeEffectsGiveChance="62">
+    <Weapons HashName="VIAL-14" Name="Jar of Tar" Desc="wp-vial-14" Icon="icon-tarjar" Type="vial" Tier="8" Price="18000" WeaponSprite="" Range="3" Height="6" Shape="kHline" ShapeSize="3" PosStyle="kLine" NegativeEffectsGive="kfCripple kfMute" NegativeEffectsGiveChance="62">
         <Stats Values="66 0 34 0" />
     </Weapons>
     <Weapons HashName="VIAL-15" Name="Sweet Dreams" Desc="wp-vial-15" Icon="icon-sweetdreams" Type="vial" Tier="9" Price="20000" WeaponSprite="" Range="3" Height="6" Shape="kCross" ShapeSize="3" NegativeEffectsGive="kfSleep" NegativeEffectsGiveChance="75">
