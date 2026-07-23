@@ -35,6 +35,21 @@ namespace FellSealAssetLoader
             #endif
             return AssetLoaderMod.CustomAttributes.TryGetValue(o, out attr);
         }
+
+        public static HashSet<string> CustomEffects(this object o)
+        {
+            return o.GetOrSetCustomField(nameof(CustomEffects), o.AttributeCustomEffects());
+        }
+        
+        public static HashSet<string> AttributeCustomEffects(this object o)
+        {
+            if (o.GetCustomAttributes(out var attr) && attr.TryGetValue(nameof(CustomEffects), out var effects))
+            {
+                return effects;
+            }
+
+            return new HashSet<string>();
+        }
         
         public static Dictionary<string, object> GetCustomFields(this object o)
         {

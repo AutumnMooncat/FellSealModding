@@ -3,16 +3,9 @@ using FellSealAssetLoader.Util;
 using HarmonyLib;
 
 #if NET6_0
-using Il2CppGame;
 using Il2CppGame.Data;
-using Il2CppGame.UI;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppApEngine;
 #else
-using Game;
 using Game.Data;
-using Game.UI;
-using ApEngine;
 #endif
 
 namespace FellSealAssetLoader.Patches
@@ -20,13 +13,25 @@ namespace FellSealAssetLoader.Patches
     [HarmonyPatch]
     public static class CharacterPatches
     {
-        public static Context<BaseCharacter> GetWeaponEquipMaskCtx;
-        public static Context<BaseCharacter> GetArmorEquipMaskCtx;
+        private static readonly Context<BaseCharacter> GetWeaponEquipMaskCtx = 
+            ContextTools.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.GetWeaponEquipMask));
+        
+        private static readonly Context<BaseCharacter> GetArmorEquipMaskCtx = 
+            ContextTools.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.GetArmorEquipMask));
+        
+        private static readonly Context<BaseCharacter> UpdatePassivesAndGearCtx =
+            ContextTools.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.UpdatePassivesAndGear));
+        
+        private static readonly Context<BaseCharacter> EquipPassiveCtx =
+            ContextTools.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.EquipPassive), typeof(string));
+
+        private static readonly Context<BaseCharacter> EquipBaseCtx =
+            ContextTools.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.EquipBase), typeof(BaseItem));
         
         [AssetInit]
         public static void Init()
         {
-            GetWeaponEquipMaskCtx = ContextTools.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.GetWeaponEquipMask))
+            GetWeaponEquipMaskCtx
                 .WithReleaseReturn((instance, args, result) =>
                 {
                     var job = instance.GetMainJob();
@@ -42,7 +47,7 @@ namespace FellSealAssetLoader.Patches
                     result[0] = valid;
                 });
             
-            GetArmorEquipMaskCtx = ContextTools.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.GetArmorEquipMask))
+            GetArmorEquipMaskCtx
                 .WithReleaseReturn((instance, args, result) =>
                 {
                     var job = instance.GetMainJob();
@@ -56,6 +61,29 @@ namespace FellSealAssetLoader.Patches
                     }
 
                     result[0] = valid;
+                });
+            
+            UpdatePassivesAndGearCtx
+                .WithHold((instance, args) =>
+                {
+                    instance.CustomEffects().Clear();
+                });
+            
+            EquipPassiveCtx
+                .WithRelease((instance, args, result) =>
+                {
+                    var passive = (string)args[0];
+                    if (string.IsNullOrEmpty(passive))
+                        return;
+                    var ability = Database.GetInstance().GetAbility(passive);
+                    instance.CustomEffects().UnionWith(ability.CustomEffects());
+                });
+
+            EquipBaseCtx
+                .WithRelease((instance, args, result) =>
+                {
+                    var item = (BaseItem)args[0];
+                    instance.CustomEffects().UnionWith(item.CustomEffects());
                 });
         }
     }
