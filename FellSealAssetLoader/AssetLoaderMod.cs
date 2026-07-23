@@ -11,7 +11,7 @@ namespace FellSealAssetLoader
 {
     public class AssetLoaderMod : MelonMod
     {
-        internal static readonly Dictionary<object, Dictionary<string, string>> CustomAttributes = new Dictionary<object, Dictionary<string, string>>();
+        internal static readonly Dictionary<object, Dictionary<string, HashSet<string>>> CustomAttributes = new Dictionary<object, Dictionary<string, HashSet<string>>>();
         internal static readonly ConditionalWeakTable<object, Dictionary<string, object>> CustomFields =
             new ConditionalWeakTable<object, Dictionary<string, object>>();
         
@@ -29,21 +29,6 @@ namespace FellSealAssetLoader
         public override void OnDeinitializeMelon()
         {
             AttributeProcessor.Run<AssetDeinitAttribute>(LoggerInstance, HarmonyInstance);
-        }
-        
-        public static T RequestExtendedEnum<T>(string name) where T : struct, Enum
-        {
-            return EnumTools.RequestExtendedEnum<T>(name);
-        }
-
-        public static Context<T> RequestContext<T>(string methodName, params Type[] paramtypez) where T : class
-        {
-            return ContextTools.RequestContext<T>(methodName, paramtypez);
-        }
-        
-        public static Context<T> RequestLateContext<T>(string methodName, params Type[] paramtypez) where T : class
-        {
-            return ContextTools.RequestLateContext<T>(methodName, paramtypez);
         }
     }
 }

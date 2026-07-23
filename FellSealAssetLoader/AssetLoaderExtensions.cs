@@ -21,7 +21,7 @@ namespace FellSealAssetLoader
             return thing;
         }
         
-        public static bool GetCustomAttributes(this object o, out Dictionary<string, string> attr)
+        public static bool GetCustomAttributes(this object o, out Dictionary<string, HashSet<string>> attr)
         {
             #if NET6_0
             foreach (var key in AssetLoaderMod.CustomAttributes.Keys)

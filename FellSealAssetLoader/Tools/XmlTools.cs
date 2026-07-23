@@ -3,6 +3,7 @@ using HarmonyLib;
 using MelonLoader;
 
 #if NET6_0
+using System.Linq;
 using Il2CppSystem.Xml.Serialization;
 #else
 using System.IO;
@@ -21,9 +22,9 @@ namespace FellSealAssetLoader.Tools
             Melon<AssetLoaderMod>.Logger.Msg($"Got custom attribute {e.attr.Name}:{e.attr.Value} when Deserializing {e.o}");
             if (!AssetLoaderMod.CustomAttributes.ContainsKey(e.o))
             {
-                AssetLoaderMod.CustomAttributes[e.o] = new Dictionary<string, string>();
+                AssetLoaderMod.CustomAttributes[e.o] = new Dictionary<string, HashSet<string>>();
             }
-            AssetLoaderMod.CustomAttributes[e.o][e.attr.Name] = e.attr.Value;
+            AssetLoaderMod.CustomAttributes[e.o][e.attr.Name] = e.attr.Value.Split(' ').ToHashSet();
             AssetLoaderEvents.GotXmlCustomAttribute(e.o, e);
         }
     }
@@ -39,10 +40,10 @@ namespace FellSealAssetLoader.Tools
                 if (!AssetLoaderMod.CustomAttributes.ContainsKey(args.ObjectBeingDeserialized))
                 {
                     AssetLoaderMod.CustomAttributes[args.ObjectBeingDeserialized] =
-                        new Dictionary<string, string>();
+                        new Dictionary<string, HashSet<string>>();
                 }
 
-                AssetLoaderMod.CustomAttributes[args.ObjectBeingDeserialized][args.Attr.Name] = args.Attr.Value;
+                AssetLoaderMod.CustomAttributes[args.ObjectBeingDeserialized][args.Attr.Name] = args.Attr.Value.Split(' ').ToHashSet();
                 AssetLoaderEvents.GotXmlCustomAttribute(args.ObjectBeingDeserialized, args);
             };
             __instance.UnknownElement += (sender, args) =>
