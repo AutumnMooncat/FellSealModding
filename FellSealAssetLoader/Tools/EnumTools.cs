@@ -152,6 +152,7 @@ namespace FellSealAssetLoader.Tools
             });
             #endif
             Melon<AssetLoaderMod>.Logger.Msg($"Created Extended Enum \"{name}\" for {type} at index {val} -> {ext}");
+            FixGetCachedValuesAndNames.NeedsUpdate.Add(type);
             _performingExtension = false;
             return ext;
         }
@@ -319,20 +320,27 @@ namespace FellSealAssetLoader.Tools
         [HarmonyPatch(typeof(Enum), "GetCachedValuesAndNames")]
         public static class FixGetCachedValuesAndNames
         {
-            private static readonly List<object> Patched = new List<object>();
+            public static readonly HashSet<Type> NeedsUpdate = new HashSet<Type>();
+            private static readonly HashSet<object> Patched = new HashSet<object>();
             
             public static void Postfix(object __result, object enumType, bool getNames)
             {
-                if (_performingExtension || Patched.Contains(__result))
-                {
-                    return;
-                }
-                
                 var maybe = enumType as Type;
                 if (maybe == null)
                 {
                     return;
                 }
+
+                if (NeedsUpdate.Remove(maybe))
+                {
+                    Patched.Remove(__result);
+                }
+                
+                if (_performingExtension || Patched.Contains(__result))
+                {
+                    return;
+                }
+                
                 if (ExtensionNames.TryGetValue(maybe, out var extNames) && ExtensionBases.TryGetValue(maybe, out var extVals))
                 {
                     Melon<AssetLoaderMod>.Logger.Msg($"GetCachedValuesAndNames -> found extension on type: {maybe}");
