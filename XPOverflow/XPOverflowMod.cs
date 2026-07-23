@@ -21,14 +21,14 @@ using System.Collections.Generic;
 #endif
 
 [assembly: MelonInfo(typeof(XPOverflowMod), "XP Overflow", "0.0.1", "Autumn Mooncat")]
+[assembly: MelonAdditionalDependencies("FellSealAssetLoader")]
 namespace XPOverflow
 {
     public class XPOverflowMod : MelonMod
     {
         public override void OnInitializeMelon()
         {
-            LoggerInstance.Msg("XP Overflow initializing");
-            Patches.Init();
+            LoggerInstance.Msg("XP Overflow Melon Initializing");
         }
     }
 
@@ -40,8 +40,11 @@ namespace XPOverflow
         public static Context<DamageCalculations> CalculateExpGainCtx;
         private static int _origExp;
         
+        [AssetInit]
         public static void Init()
         {
+            Melon<XPOverflowMod>.Logger.Msg("XP Overflow Asset Initializing");
+            
             AddMissionRewardCtx = AssetLoaderMod.RequestContext<Inventory>(
                 nameof(Inventory.AddMissionReward),
                 typeof(Inventory.MissionInProgress),
@@ -173,7 +176,6 @@ namespace XPOverflow
                         }
                         result[0] = caster.character.level >= BaseCharacter.kLevelMax ? 0 : xp;
                     });
-            Melon<XPOverflowMod>.Logger.Msg("Patch statics initialized");
         }
     }
 }

@@ -28,7 +28,7 @@ namespace MonkClass
     {
         public override void OnInitializeMelon()
         {
-            LoggerInstance.Msg("Monk Class initializing");
+            LoggerInstance.Msg("Monk Class Melon Initializing");
         }
     }
 
@@ -55,6 +55,8 @@ namespace MonkClass
         [AssetInit]
         public static void Init()
         {
+            Melon<MonkMod>.Logger.Msg("Monk Class Asset Initializing");
+            
             EquipPassiveCtx =
                 AssetLoaderMod.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.EquipPassive), typeof(string))
                     .WithRelease((instance, args, result) =>

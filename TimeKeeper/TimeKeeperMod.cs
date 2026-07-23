@@ -20,7 +20,7 @@ using Constants = SpriteEngine.Constants;
 using System.Collections.Generic;
 #endif
 
-[assembly: MelonInfo(typeof(TimeKeeperMod), "TimeKeeper Mod", "0.0.1", "")]
+[assembly: MelonInfo(typeof(TimeKeeperMod), "Time Keeper", "0.0.1", "")]
 [assembly: MelonAdditionalDependencies("FellSealAssetLoader")]
 namespace TimeKeeper
 {
@@ -28,7 +28,7 @@ namespace TimeKeeper
     {
         public override void OnInitializeMelon()
         {
-            LoggerInstance.Msg("TimeKeeper initializing");
+            LoggerInstance.Msg("Time Keeper Melon Initializing");
         }
     }
 
@@ -41,6 +41,8 @@ namespace TimeKeeper
         [AssetInit]
         public static void Init()
         {
+            Melon<TimeKeeperMod>.Logger.Msg("Time Keeper Asset Initializing");
+            
             LightspeedBox = RegistryTools.RegisterExtraBox(nameof(LightspeedBox))
                 .WithOnSpawn(manager =>
                 {

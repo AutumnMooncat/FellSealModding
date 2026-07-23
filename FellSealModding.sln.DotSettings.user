@@ -159,4 +159,5 @@
   &lt;Assembly Path="/extra/SteamLibrary/steamapps/common/Fell Seal/Fell Seal_Data/Managed/mscorlib.dll" /&gt;
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=e3f1d47c_002Db739_002D4118_002Dbc9b_002Da64cd5368933_0023ModTemplate/@EntryIndexedValue">True</s:Boolean>
+	
 	</wpf:ResourceDictionary>

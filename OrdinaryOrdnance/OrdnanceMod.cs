@@ -26,7 +26,7 @@ namespace OrdinaryOrdnance
     {
         public override void OnInitializeMelon()
         {
-            LoggerInstance.Msg("Ordinary Ordnance initializing");
+            LoggerInstance.Msg("Ordinary Ordnance Melon Initializing");
         }
     }
 
@@ -39,6 +39,8 @@ namespace OrdinaryOrdnance
         [AssetInit]
         public static void Init()
         {
+            Melon<OrdnanceMod>.Logger.Msg("Ordinary Ordnance Asset Initializing");
+            
             VialWeapon = RegistryTools.RegisterWeaponsType("Vial", "icon-vial-group", WeaponRegistry.Handedness.TrueTwoHanded)
                 .WithJobs(
                     GameConstants.Jobs.Peddler, 
