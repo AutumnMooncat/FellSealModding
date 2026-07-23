@@ -35,12 +35,22 @@ namespace FellSealAssetLoader.Tools
             return reg;
         }
         
-        public static CommandRegistry RegisterCommandOption(string name, bool root, string nameKey, string descKey)
+        public static CommandRegistry RegisterCommandOption(string name, string nameLocKey, string descLocKey)
         {
             var caller = Assembly.GetCallingAssembly();
             var info = caller.GetCustomAttribute(typeof(MelonInfoAttribute)) as MelonInfoAttribute;
             var ext = EnumTools.RequestExtendedEnum<CommandBox.AbilityType>("k"+name);
-            var reg = new CommandRegistry(info, ext, root, ext.ToString(), name, nameKey, descKey);
+            var reg = new CommandRegistry(info, ext, true, ext.ToString(), name, nameLocKey, descLocKey);
+            CommandRegistries.Add(reg);
+            return reg;
+        }
+        
+        public static CommandRegistry RegisterSubCommandOption(string name)
+        {
+            var caller = Assembly.GetCallingAssembly();
+            var info = caller.GetCustomAttribute(typeof(MelonInfoAttribute)) as MelonInfoAttribute;
+            var ext = EnumTools.RequestExtendedEnum<CommandBox.AbilityType>("k"+name);
+            var reg = new CommandRegistry(info, ext, false, ext.ToString(), name, "", "");
             CommandRegistries.Add(reg);
             return reg;
         }

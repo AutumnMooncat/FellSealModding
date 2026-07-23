@@ -148,7 +148,7 @@ namespace FellSealAssetLoader.Util
     public class CommandRegistry : Registry
     {
         public delegate bool ShouldAppear(CommandBox commandBox);
-        public delegate void OnSelect(BattleManager manager);
+        public delegate bool OnSelect(BattleManager manager);
         
         public readonly CommandBox.AbilityType type;
         public readonly bool root;
