@@ -144,4 +144,72 @@ namespace FellSealAssetLoader.Util
             this.sprite = sprite;
         }
     }
+
+    public class CommandRegistry : Registry
+    {
+        public delegate bool ShouldAppear(CommandBox commandBox);
+        public delegate void OnSelect(BattleManager manager);
+        
+        public readonly CommandBox.AbilityType type;
+        public readonly bool root;
+        public readonly string id;
+        public readonly string name;
+        public readonly string nameKey;
+        public readonly string descKey;
+        public ShouldAppear shouldAppear;
+        public OnSelect onSelect;
+        
+        public CommandRegistry(MelonInfoAttribute modInfo, CommandBox.AbilityType type, bool root, string id, string name, string nameKey, string descKey) : base(modInfo)
+        {
+            this.type = type;
+            this.root = root;
+            this.id = id;
+            this.name = name;
+            this.nameKey = nameKey;
+            this.descKey = descKey;
+        }
+
+        public CommandRegistry WithShouldAppear(ShouldAppear shouldAppear)
+        {
+            this.shouldAppear = shouldAppear;
+            return this;
+        }
+
+        public CommandRegistry WithOnSelect(OnSelect onSelect)
+        {
+            this.onSelect = onSelect;
+            return this;
+        }
+    }
+
+    public class ExtraBoxRegistry : Registry
+    {
+        public delegate bool OnSpawn(BattleManager battleManager);
+        public delegate void OnProcess(BattleManager battleManager, int index);
+        
+        public readonly Abilities.ExtraCommandBox type;
+        public readonly string id;
+        public readonly string name;
+        public OnSpawn onSpawn;
+        public OnProcess onProcess;
+        
+        public ExtraBoxRegistry(MelonInfoAttribute modInfo, Abilities.ExtraCommandBox type, string id, string name) : base(modInfo)
+        {
+            this.type = type;
+            this.id = id;
+            this.name = name;
+        }
+
+        public ExtraBoxRegistry WithOnSpawn(OnSpawn onSpawn)
+        {
+            this.onSpawn = onSpawn;
+            return this;
+        }
+
+        public ExtraBoxRegistry WithOnProcess(OnProcess onProcess)
+        {
+            this.onProcess = onProcess;
+            return this;
+        }
+    }
 }

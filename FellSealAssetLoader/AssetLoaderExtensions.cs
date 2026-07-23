@@ -183,6 +183,28 @@ namespace FellSealAssetLoader
             return array == null ? "" : string.Join(", ", array.Select(t => t.ToString()));
         }
 
+        public static bool NoShenanigans(this Abilities.Ability ability)
+        {
+            return !ability.targetsGround &&
+                   !ability.onlyShowArea &&
+                   !ability.isSystem &&
+                   ability.petEffect == null &&
+                   ability.special != Abilities.SpecialEffect.kSwapPositions &&
+                   ability.special != Abilities.SpecialEffect.kDisplaceOther &&
+                   ability.special != Abilities.SpecialEffect.kDisplaceOther1Third &&
+                   ability.special != Abilities.SpecialEffect.kTeleportOther &&
+                   ability.special != Abilities.SpecialEffect.kTeleportOtherIntoOther &&
+                   ability.special != Abilities.SpecialEffect.kCanopicJar &&
+                   ability.special != Abilities.SpecialEffect.kPandoraBox &&
+                   ability.special != Abilities.SpecialEffect.kSummonAnyDemonTier1 &&
+                   ability.special != Abilities.SpecialEffect.kSummonAnyDemonTier2 &&
+                   ability.special != Abilities.SpecialEffect.kSummonAnyDemonTier3 &&
+                   ability.special2 != Abilities.SpecialEffect2.kSacrifice &&
+                   ability.special2 != Abilities.SpecialEffect2.kSacrificeAndPowerScale &&
+                   ability.special2 != Abilities.SpecialEffect2.kSacrificeAndTransferBuffs &&
+                   ability.hasExtraBox == Abilities.ExtraCommandBox.kNone;
+        }
+
         #if NET6_0
         public static string ToArrayString<T>(this Il2CppArrayBase<T> array)
         {

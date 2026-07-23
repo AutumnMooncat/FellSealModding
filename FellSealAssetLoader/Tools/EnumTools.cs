@@ -25,6 +25,7 @@ namespace FellSealAssetLoader.Tools
         internal static readonly Dictionary<Type, Dictionary<Enum, string>> ExtensionNames = new Dictionary<Type, Dictionary<Enum, string>>();
         internal static readonly Dictionary<Type, Dictionary<Enum, int>> ExtensionBases = new Dictionary<Type, Dictionary<Enum, int>>();
         internal static readonly Dictionary<Type, Dictionary<string, ShadowField>> ExtensionFields = new Dictionary<Type, Dictionary<string, ShadowField>>();
+        private static bool _performingExtension;
         
         //[AssetInit]
         public static unsafe void Init()
@@ -113,7 +114,8 @@ namespace FellSealAssetLoader.Tools
             {
                 return (T) key;
             }
-            
+
+            _performingExtension = true;
             var index = 0;
             var flags = Attribute.IsDefined(type, typeof(FlagsAttribute));
             T ext = default;
@@ -132,6 +134,7 @@ namespace FellSealAssetLoader.Tools
             if (ext.Equals(default(T)))
             {
                 Melon<AssetLoaderMod>.Logger.BigError($"Failed to create Enum Extension {name} for {type}");
+                _performingExtension = false;
                 return default;
             }
 
@@ -149,6 +152,7 @@ namespace FellSealAssetLoader.Tools
             });
             #endif
             Melon<AssetLoaderMod>.Logger.Msg($"Created Extended Enum \"{name}\" for {type} at index {val} -> {ext}");
+            _performingExtension = false;
             return ext;
         }
         
@@ -312,10 +316,38 @@ namespace FellSealAssetLoader.Tools
         }
         #endif
 
-        [HarmonyPatch(typeof(Enum), "TryParseEnum")]
-        public static class FixTryParse
+        [HarmonyPatch(typeof(Enum), "GetCachedValuesAndNames")]
+        public static class FixGetCachedValuesAndNames
         {
+            private static readonly List<object> Patched = new List<object>();
             
+            public static void Postfix(object __result, object enumType, bool getNames)
+            {
+                if (_performingExtension || Patched.Contains(__result))
+                {
+                    return;
+                }
+                
+                var maybe = enumType as Type;
+                if (maybe == null)
+                {
+                    return;
+                }
+                if (ExtensionNames.TryGetValue(maybe, out var extNames) && ExtensionBases.TryGetValue(maybe, out var extVals))
+                {
+                    Melon<AssetLoaderMod>.Logger.Msg($"GetCachedValuesAndNames -> found extension on type: {maybe}");
+                    Patched.Add(__result);
+                    var valNamesType = __result.GetType();
+                    var valsField = valNamesType.GetField("Values");
+                    var namesField = valNamesType.GetField("Names");
+                    var vals = valsField.GetValue(__result) as ulong[];
+                    var names = namesField.GetValue(__result) as string[];
+                    var newVals = vals.AddRangeToArray(extVals.Values.Select(i => (ulong)i).Where(l => !vals.Contains(l)).ToArray());
+                    var newNames = names.AddRangeToArray(extNames.Values.Where(s => !names.Contains(s)).ToArray());
+                    valsField.SetValue(__result, newVals);
+                    namesField.SetValue(__result, newNames);
+                }
+            }
         }
     }
 }

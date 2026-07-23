@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using FellSealAssetLoader.Tools;
 using FellSealAssetLoader.Util;
@@ -8,13 +7,16 @@ using HarmonyLib;
 using MelonLoader;
 
 #if NET6_0
+using Il2Cpp;
 using Il2CppGame;
+using Il2CppGame.Battle;
 using Il2CppGame.Data;
 using Il2CppGame.UI;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppApEngine;
 #else
 using Game;
+using Game.Battle;
 using Game.Data;
 using Game.UI;
 using ApEngine;
@@ -30,6 +32,11 @@ namespace FellSealAssetLoader.Patches
         public static readonly Dictionary<WeaponsType, Inventory.GearList> GearMap = new Dictionary<WeaponsType, Inventory.GearList>();
         public static Context<Inventory> CreateGearListCtx;
         public static Context<Inventory> CreateAllGroupsCtx;
+        public static Context<BattleManager> ProcessInputCtx;
+        public static Context<CommandBox> OnCommandBoxSelectCtx;
+        public static Context<CommandBox.CommandPage> GetCommandCtx;
+        private static CommandBox.AbilityType _gottenChoice;
+        private static CommandBox.Command _gottenCommand;
         
         [AssetInit]
         public static void Init()
@@ -90,6 +97,138 @@ namespace FellSealAssetLoader.Patches
                     }
                     //Melon<AssetLoaderMod>.Logger.Msg($"CreateAllGroupsCtx added {GearMap.Count} GearLists");
                 });
+            
+            ProcessInputCtx =
+                AssetLoaderMod.RequestContext<BattleManager>(nameof(BattleManager.ProcessInput))
+                    .WithRelease((instance, args, result) =>
+                    {
+                        if (_gottenChoice == CommandBox.AbilityType.kNone)
+                        {
+                            return;
+                        }
+                        foreach (var reg in RegistryTools.CommandRegistries)
+                        {
+                            if (_gottenChoice == reg.type)
+                            {
+                                _gottenChoice = CommandBox.AbilityType.kNone;
+                                reg.onSelect(instance);
+                                return;
+                            }
+                        }
+                    });
+            
+            OnCommandBoxSelectCtx =
+                AssetLoaderMod.RequestContext<CommandBox>(nameof(CommandBox.OnCommandBoxSelect), typeof(int), typeof(GamePadInput.Button))
+                    .WithHold((instance, args) =>
+                    {
+                        _gottenCommand = null;
+                    })
+                    .WithRelease((instance, args, result) =>
+                    {
+                        if (_gottenCommand == null || !_gottenCommand.enabled)
+                        {
+                            return;
+                        }
+                        foreach (var reg in RegistryTools.CommandRegistries)
+                        {
+                            if (_gottenCommand.abilityType == reg.type && !reg.root)
+                            {
+                                _gottenCommand = null;
+                                instance.Hide();
+                                return;
+                            }
+                        }
+                    });
+            
+            GetCommandCtx =
+                AssetLoaderMod.RequestContext<CommandBox.CommandPage>(nameof(CommandBox.CommandPage.GetCommand), typeof(int))
+                    .WithRelease((instance, args, result) =>
+                    {
+                        if (OnCommandBoxSelectCtx.Get())
+                        {
+                            _gottenCommand = (CommandBox.Command)result;
+                        }
+                    });
+        }
+        
+        [HarmonyPatch(typeof(CommandBox), nameof(CommandBox.GetChoice))]
+        public static class GetChoice
+        {
+            public static void Prefix(CommandBox __instance)
+            {
+                if (ProcessInputCtx.Get())
+                {
+                    _gottenChoice = __instance.mCurrentAbility;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(CommandBox), nameof(CommandBox.AddRazorWindCommand))]
+        public static class AddCommandBoxes
+        {
+            public static void Postfix(CommandBox __instance, bool isActive)
+            {
+                foreach (var reg in RegistryTools.CommandRegistries)
+                {
+                    // TODO track and fill in index, new page if too many
+                    if (reg.root && reg.shouldAppear(__instance))
+                    {
+                        __instance.mCommandsList[__instance.mDepth].AddCommand(
+                            new CommandBox.Command(
+                                __instance.mLocManager.GetTermNoColors(reg.nameKey), 
+                                __instance.GetCommandDescription(__instance.mLocManager.GetTerm(reg.descKey)), 
+                                reg.type, 
+                                0, 
+                                isActive, 
+                                CommandBox.KeyCodeIndex.kNone
+                            )
+                        );
+                    }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(BattleManager), nameof(BattleManager.SpawnExtraBox))]
+        public static class SpawnExtraBoxPatch
+        {
+            public static bool Prefix(BattleManager __instance, Abilities.ExtraCommandBox extraCommandBox)
+            {
+                foreach (var reg in RegistryTools.ExtraBoxRegistries)
+                {
+                    if (reg.type == extraCommandBox)
+                    {
+                        //Melon<AssetLoaderMod>.Logger.Error($"Spawning ExtraBoxReg {reg.name}");
+                        __instance.mCustomEntries.Clear();
+                        if (!reg.onSpawn(__instance))
+                        {
+                            __instance.mSoundManager.SfxPlay(2, Sounds.UI.kErrorButton);
+                            __instance.mCommandBox.Show();
+                        }
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        [HarmonyPatch(typeof(BattleManager), nameof(BattleManager.ProcessCustomCommandBox))]
+        public static class ProcessCustomCommandBoxPatch
+        {
+            public static bool Prefix(BattleManager __instance, Abilities.ExtraCommandBox extraCommand, int index)
+            {
+                foreach (var reg in RegistryTools.ExtraBoxRegistries)
+                {
+                    if (reg.type == extraCommand)
+                    {
+                        //Melon<AssetLoaderMod>.Logger.Error($"Processing ExtraBoxReg {reg.name}");
+                        reg.onProcess(__instance, index);
+                        __instance.QueueAbilityProcess();
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
 
         [HarmonyPatch(typeof(Inventory), nameof(Inventory.AddweaponToList))]
