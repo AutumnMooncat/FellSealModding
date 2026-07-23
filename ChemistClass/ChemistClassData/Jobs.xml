@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<XMLJobs>
+    <jobs>
+        <Job ClassName="CHEM" WeaponsType="kfDagger kfRod kfGun" ArmorType="kfRobes kfLightArmor kfClothHelmet kfLightHelmet" BaseMove="3" BaseJump="2" CanSwim="false" SpeedGrowth="0.9" BaseSpeed="93.33" casterClass="1" Hat="healer" OutfitM="healer1" OutfitF="healer1">
+            <StatsGrowth Values="3.75 4 4.25 4" />
+            <HealthGrowth Values="7.5 3" />
+            <BaseStats Values="39 41 43 40" />
+            <HealthBase Values="78 21" />
+            <requirements>
+                <UnlockingRequirement ClassHash="UTIL" Level="5" />
+                <UnlockingRequirement ClassHash="PEDD" Level="5" />
+            </requirements>
+            <learnables>
+                <Tier>
+                    <SkillTile Cost="0">
+                        <AbilityHash>CHEM-A1</AbilityHash>
+                    </SkillTile>
+                </Tier>
+                <Tier>
+                    <SkillTile Cost="150">
+                        <AbilityHash>CHEM-A2</AbilityHash>
+                    </SkillTile>
+                    <SkillTile Cost="150">
+                        <AbilityHash>CHEM-A3</AbilityHash>
+                    </SkillTile>
+                </Tier>
+                <Tier>
+                    <SkillTile Cost="200">
+                        <AbilityHash>CHEM-A4</AbilityHash>
+                    </SkillTile>
+                    <SkillTile Cost="200">
+                        <AbilityHash>CHEM-P1</AbilityHash>
+                    </SkillTile>
+                </Tier>
+                <Tier>
+                    <SkillTile Cost="250">
+                        <AbilityHash>CHEM-A5</AbilityHash>
+                    </SkillTile>
+                    <SkillTile Cost="250">
+                        <AbilityHash>CHEM-C1</AbilityHash>
+                    </SkillTile>
+                </Tier>
+                <Tier>
+                    <SkillTile Cost="300">
+                        <AbilityHash>CHEM-A6</AbilityHash>
+                    </SkillTile>
+                    <SkillTile Cost="200">
+                        <AbilityHash>CHEM-P2</AbilityHash>
+                    </SkillTile>
+                </Tier>
+                <Tier>
+                    <SkillTile Cost="350">
+                        <AbilityHash>CHEM-A7</AbilityHash>
+                    </SkillTile>
+                </Tier>
+            </learnables>
+            <Mastery hp="5" def="5" res="5" />
+        </Job>
+    </jobs>
+</XMLJobs>

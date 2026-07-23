@@ -1,0 +1,40 @@
+; ********************************
+; Chemist
+; ********************************
+; Job
+CHEM-Title  =Chemist
+CHEM-Ability=Pharmacology
+CHEM-Desc   =These researchers are experts in the use of restoratives.
+
+; Abilities
+CHEM-A1     =Mix!
+CHEM-A1-desc=
+
+CHEM-A2     =
+CHEM-A2-desc=
+
+CHEM-A3     =
+CHEM-A3-desc=
+
+CHEM-A4     =
+CHEM-A4-desc=
+
+CHEM-A5     =
+CHEM-A5-desc=
+
+CHEM-A6     =
+CHEM-A6-desc=
+
+CHEM-A7     =
+CHEM-A7-desc=
+
+; Passives
+CHEM-P1     =Auto-{renew-spell}
+CHEM-P1-desc={passive-auto-effect} {help-posstatus-Renew-desc}
+
+CHEM-P2     =
+CHEM-P2-desc=
+
+; Counter
+;CHEM-C1     =Weaken (copy)
+;CHEM-C1-desc=

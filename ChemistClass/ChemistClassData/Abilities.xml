@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<XMLAbilities>
+    <active>
+        <Ability HashName="CHEM-A1" Name="" EffectHash="" />
+        <Ability HashName="CHEM-A2" Name="" EffectHash="" />
+        <Ability HashName="CHEM-A3" Name="" EffectHash="" />
+        <Ability HashName="CHEM-A4" Name="" EffectHash="" />
+        <Ability HashName="CHEM-A5" Name="" EffectHash="" />
+        <Ability HashName="CHEM-A6" Name="" EffectHash="" />
+        <Ability HashName="CHEM-A7" Name="" EffectHash="" />
+    </active>
+    <passive>
+        <Ability HashName="CHEM-P1" Name="Auto-Renew" AddPositiveEffects="kfRenew" AddsNonRemovableEffects1="kfPermanentPositive" />
+        <Ability HashName="CHEM-P2" Name="" />
+    </passive>
+    <counter>
+        <Ability HashName="CHEM-C1" Name="Weaken" CopyFrom="HAR-03-C1" />
+    </counter>
+</XMLAbilities>

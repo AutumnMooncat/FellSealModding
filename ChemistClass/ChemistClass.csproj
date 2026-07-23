@@ -1,0 +1,104 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <LangVersion>7.3</LangVersion>
+        <TargetFrameworks>net6.0;net472</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.5.0-beta.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="ChemistClassData\**\*.*">
+            <Link>ChemistClassData\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+
+        <Reference Include="Assembly-CSharp" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\Assembly-CSharp.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule" Publicize="true" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\Fell Seal_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="0Harmony" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net35\0Harmony.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="FellSealAssetLoader" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\FellSealAssetLoader\bin\Debug\net472\FellSealAssetLoader.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="MelonLoader" Condition="'$(TargetFramework)' == 'net472'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal\MelonLoader\net35\MelonLoader.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+
+        <Reference Include="Assembly-CSharp" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="0Harmony" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\net6\0Harmony.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="FellSealAssetLoader" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\FellSealAssetLoader\bin\Debug\net6.0\FellSealAssetLoader.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="MelonLoader" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\net6\MelonLoader.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Il2Cppmscorlib" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Il2CppSystem" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\Il2CppAssemblies\Il2CppSystem.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Il2CppSystem.Xml" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\Il2CppAssemblies\Il2CppSystem.Xml.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Il2CppInterop.Runtime" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Il2CppInterop.HarmonySupport" Condition="'$(TargetFramework)' == 'net6.0'">
+            <HintPath>..\..\..\..\..\extra\SteamLibrary\steamapps\common\Fell Seal Windows\MelonLoader\net6\Il2CppInterop.HarmonySupport.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+
+    <Target Name="CopyFiles" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net472'">
+        <Message Importance="high" Text="Copying output to linux mods folder"/>
+        <ItemGroup>
+            <MySourceFiles Include="$(BaseOutputPath)/Debug/net472/**/*.*"/>
+        </ItemGroup>
+        <Copy SourceFiles="@(MySourceFiles)" DestinationFolder="/extra/SteamLibrary/steamapps/common/Fell Seal/Mods/%(RecursiveDir)">
+            <Output TaskParameter="CopiedFiles" ItemName="SuccessfullyCopiedFiles"/>
+        </Copy>
+    </Target>
+
+    <Target Name="CopyFiles2" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net6.0'">
+        <Message Importance="high" Text="Copying output to windows mods folder"/>
+        <ItemGroup>
+            <MySourceFiles Include="$(BaseOutputPath)/Debug/net6.0/**/*.*"/>
+        </ItemGroup>
+        <Copy SourceFiles="@(MySourceFiles)" DestinationFolder="/extra/SteamLibrary/steamapps/common/Fell Seal Windows/Mods/%(RecursiveDir)">
+            <Output TaskParameter="CopiedFiles" ItemName="SuccessfullyCopiedFiles"/>
+        </Copy>
+    </Target>
+
+</Project>
