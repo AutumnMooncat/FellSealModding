@@ -1,5 +1,4 @@
-﻿using System;
-using FellSealAssetLoader;
+﻿using FellSealAssetLoader;
 using FellSealAssetLoader.Tools;
 using FellSealAssetLoader.Util;
 using HarmonyLib;
@@ -33,15 +32,13 @@ namespace OrdinaryOrdnance
     [HarmonyPatch]
     public class Patches
     {
-        public static string VialAttack = "VIAL-ATK-";
-        public static WeaponRegistry VialWeapon;
+        private const string VialAttack = "VIAL-ATK-";
+        private static readonly WeaponRegistry VialWeapon = RegistryTools.RegisterWeaponsType("Vial", "icon-vial-group", WeaponRegistry.Handedness.TrueTwoHanded);
         
         [AssetInit]
         public static void Init()
         {
-            Melon<OrdnanceMod>.Logger.Msg("Ordinary Ordnance Asset Initializing");
-            
-            VialWeapon = RegistryTools.RegisterWeaponsType("Vial", "icon-vial-group", WeaponRegistry.Handedness.TrueTwoHanded)
+            VialWeapon
                 .WithJobs(
                     GameConstants.Jobs.Peddler, 
                     GameConstants.Jobs.Alchemystic, 

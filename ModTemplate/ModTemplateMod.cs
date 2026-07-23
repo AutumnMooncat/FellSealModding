@@ -23,7 +23,6 @@ namespace ModTemplate
         [AssetInit]
         public static void Init()
         {
-            Melon<ModTemplateMod>.Logger.Msg("ModTemplate Asset Initializing");
         }
     }
 }

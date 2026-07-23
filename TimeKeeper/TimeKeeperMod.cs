@@ -35,15 +35,13 @@ namespace TimeKeeper
     [HarmonyPatch]
     public class Patches
     {
-        public static ExtraBoxRegistry LightspeedBox;
+        private static readonly ExtraBoxRegistry LightspeedBox = RegistryTools.RegisterExtraBox(nameof(LightspeedBox));
         private static Abilities.Ability _lightspeedBase;
         
         [AssetInit]
         public static void Init()
         {
-            Melon<TimeKeeperMod>.Logger.Msg("Time Keeper Asset Initializing");
-            
-            LightspeedBox = RegistryTools.RegisterExtraBox(nameof(LightspeedBox))
+            LightspeedBox
                 .WithOnSpawn(manager =>
                 {
                     manager.mCustomSpells = FindAllLightspeedSpells(manager.mCurrentActor);

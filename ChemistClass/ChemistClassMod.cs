@@ -24,7 +24,6 @@ namespace ChemistClass
         [AssetInit]
         public static void Init()
         {
-            Melon<ChemistClassMod>.Logger.Msg("Chemist Class Asset Initializing");
         }
     }
 }
