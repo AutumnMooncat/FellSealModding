@@ -35,7 +35,7 @@ namespace FellSealAssetLoader.Util
                 {
                     if (file.EndsWith(target))
                     {
-                        Melon<AssetLoaderMod>.Logger.Msg("Processing "+file);
+                        //Melon<AssetLoaderMod>.Logger.Msg("Processing "+file);
                         callback(file);
                     }
                 }

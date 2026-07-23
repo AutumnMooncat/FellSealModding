@@ -55,6 +55,7 @@ namespace FellSealAssetLoader.Loaders
                     logger.Error("Failed to load sprite at "+png);
                 }
             });
+            logger.Msg($"Loaded {UnitySprites.Count} sprites");
         }
 
         [AssetDeinit]
