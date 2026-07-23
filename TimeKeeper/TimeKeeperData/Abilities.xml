@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <XMLAbilities>
     <active>
-        <Ability HashName="TODO-A1" Name="" EffectHash="" />
-        <Ability HashName="TODO-A2" Name="" EffectHash="" />
-        <Ability HashName="TODO-A3" Name="" EffectHash="" />
-        <Ability HashName="TODO-A4" Name="" EffectHash="" />
-        <Ability HashName="TODO-A5" Name="" EffectHash="" />
-        <Ability HashName="TODO-A6" Name="" EffectHash="" />
-        <Ability HashName="TODO-A7" Name="" EffectHash="" />
+        <Ability HashName="TIME-A6" Name="Lightspeed" MpCost="6" MinRange="1" Range="1" RangeHeight="5" Size="100" Shape="kVLine" SpellType="kSkill" ExtraFlags="kNoAIUse" HasExtraBox="kLightspeedBox" />
+        <Ability HashName="TIME-A2" Name="Haste Bolt" EffectHash="ALCH-A5" MpCost="10" Range="2" RangeHeight="5" Power="0.8" Element="kNone" DmgType="kHealing" DmgSource="kMAtk" AddPositiveEffects="kfHaste" />
+        <Ability HashName="TIME-A3" Name="Slow Bolt" EffectHash="UTIL-A7" MpCost="10" Range="2" RangeHeight="5" Power="0.8" Element="kNone" DmgType="kMagical" DmgSource="kMAtk" AddNegativeEffects="kfSlow" AddNegativeEffectsBaseChance="100" />
+        <Ability HashName="TIME-A4" Name="Stop" MpCost="8" Range="4" RangeHeight="5" Element="kNone" DmgType="kMagical" DmgSource="kMAtk" SpecialEffect="kDelayStrike" SpecialEffect2="kPerfectAccuracy" AddNegativeEffects="kfRoot" AddNegativeEffectsBaseChance="100" />
+        <Ability HashName="TIME-A1" Name="Quicken" EffectHash="GAMB-A6" MpCost="14" Range="3" RangeHeight="3" Element="kNone" DmgType="kHealing" DmgSource="kMAtk" SpecialEffect="kQuicken" AddNegativeEffects="kfNoQuicken" AddNegativeEffectsBaseChance="100" />
+        <Ability HashName="TIME-A5" Name="Gravity" MpCost="10" Range="4" RangeHeight="5" Element="kNone" DmgType="kMagical" DmgSource="kMAtk" SpecialEffect="kHalfCurrentHealth" SpecialEffect2="kPerfectAccuracy" ExtraFlags="kIgnoreSides kIgnoresCover" />
+        <Ability HashName="TIME-A7" Name="Chronoshift" EffectHash="IMM1-A1" MpCost="12" Range="1" RangeHeight="7" Power2="100" Power3="100" Element="kNone" DmgType="kHealing" DmgSource="kMAtk" SpecialEffect="kTeleportOther" ExtraFlags="kNoAIUse kIgnoreSmartCast" HasExtraBox="kSecondTargetingEmptyGround" />
     </active>
     <passive>
-        <Ability HashName="TODO-P1" Name="" />
-        <Ability HashName="TODO-P2" Name="" />
+        <Ability HashName="TIME-P1" Name="Subspace Bridge" AddsNonRemovableEffects2="kfFarSight" />
+        <Ability HashName="TIME-P2" Name="Translocate" AddsNonRemovableEffects2="kfTeleport" />
     </passive>
     <counter>
-        <Ability HashName="TODO-C1" Name="" />
+        <Ability HashName="TIME-C1" Name="Slow" CopyFrom="MARK-C1" />
     </counter>
 </XMLAbilities>

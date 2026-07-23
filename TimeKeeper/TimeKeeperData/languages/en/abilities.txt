@@ -4,40 +4,40 @@
 ; Job
 TIME-Title  =Time Keeper
 TIME-Ability=Chronomancy
-TIME-Desc   =These paradoxical warriors have learned that some rules are mere suggestions to those capable of temporal and spatial manipulation.
+TIME-Desc   =These paradoxical mages have learned that some rules are mere suggestions to those capable of temporal and spatial manipulation.
 
 ; Abilities
-TIME-A1     =Quicken (copy)
-TIME-A1-desc=
+TIME-A1     ={quicken-spell}
+TIME-A1-desc=Grants the target an immediate turn.
 
-TIME-A2     ={haste-spell}
-TIME-A2-desc={status-pos-single} {help-posstatus-Haste-desc}
+TIME-A2     ={haste-spell} {term-tier-bolt}
+TIME-A2-desc={heal-small-opener} to the target and grants {addpositive}. {help-posstatus-Haste-desc}
 
-TIME-A3     =Slow (copy)
-TIME-A3-desc=
+TIME-A3     ={slow-spell} {term-tier-bolt}
+TIME-A3-desc={damage-with-negative}
 
 TIME-A4     =Stop
-TIME-A4-desc=
+TIME-A4-desc=Inflicts {addnegative} on the target and delays progress towards their next turn by {locterm}% of its current value.
 
 TIME-A5     =Gravity
-TIME-A5-desc=
+TIME-A5-desc=Deals damage equal to 1/2 of the target's current {HP}. {ignore-cover}
 
 TIME-A6     =Lightspeed
-TIME-A6-desc=
+TIME-A6-desc=Turns any {spell} that can target others into an infinitely ranged line.
 
-TIME-A7     =Rewind
-TIME-A7-desc=Attack and return to starting tile?
+TIME-A7     =Chronoshift
+TIME-A7-desc=Teleports the target to any location. {bypass-counters}
 
 ; Passives
-TIME-P1     =Overextend (Telekinesis) / Far Sight?
-TIME-P1-desc=
+TIME-P1     =Subspace Bridge
+TIME-P1-desc=Increases the range of Ranged {spells} by 1.
 
 TIME-P2     =Translocate
-TIME-P2-desc=
+TIME-P2-desc=Character instantly crosses the distance between 2 points by teleportation.
 
 ; Counter
-TIME-C1     =Slow (copy)
-TIME-C1-desc=
+;TIME-C1     ={slow-spell}
+;TIME-C1-desc={counter-with-negative-status}
 
 ; ********************************
 ; Chemist
