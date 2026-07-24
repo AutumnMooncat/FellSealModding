@@ -35,156 +35,61 @@ namespace MonkClass
     [HarmonyPatch]
     public class Patches
     {
-        public static string MonkClassname => "MONK";
-        public static readonly string MonkEffect = nameof(MonkEffect);
         public static readonly string FlurryOfBlows = nameof(FlurryOfBlows);
         public static readonly string ExtraTurn = nameof(ExtraTurn);
-        public static readonly CommandBox.AbilityType kFlurryOfBlows = AssetLoaderMod.RequestExtendedEnum<CommandBox.AbilityType>(nameof(kFlurryOfBlows));
-        public static readonly CommandBox.AbilityType kFlurryOfBlowsSelection = AssetLoaderMod.RequestExtendedEnum<CommandBox.AbilityType>(nameof(kFlurryOfBlowsSelection));
-        public static readonly CommandBox.KeyCodeIndex kFlurryOfBlowsIndex =
-            AssetLoaderMod.RequestExtendedEnum<CommandBox.KeyCodeIndex>(nameof(kFlurryOfBlowsIndex));
-        public static Context<BaseCharacter> EquipPassiveCtx;
-        public static Context<BaseCharacter> UpdatePassivesAndGearCtx;
-        public static Context<BattleManager> ProcessInputCtx;
-        public static Context<CommandBox> OnCommandBoxSelectCtx;
-        public static Context<CommandBox.CommandPage> GetCommandCtx;
-        public static Context<DamageCalculations> DamageCalcApplyCtx;
-        private static CommandBox.AbilityType _gottenChoice;
-        private static CommandBox.Command _gottenCommand;
+
+        private static readonly Context<DamageCalculations> DamageCalcApplyCtx =
+            ContextTools.RequestLateContext<DamageCalculations>(nameof(DamageCalculations.Apply), typeof(List<BattleCharacter>), typeof(BattleCharacter), typeof(DamageCalculations.DamageResult));
+
+        private static readonly CommandRegistry FlurryOfBlowsCmd = 
+            RegistryTools.RegisterCommandOption(FlurryOfBlows, $"ability-{FlurryOfBlows}", $"ability-{FlurryOfBlows}-desc");
+
+        private static readonly CommandRegistry FlurryOfBlowsSelectionCmd = 
+            RegistryTools.RegisterSubCommandOption($"{FlurryOfBlows}Selection");
         
         [AssetInit]
         public static void Init()
         {
-            Melon<MonkMod>.Logger.Msg("Monk Class Asset Initializing");
-            
-            EquipPassiveCtx =
-                AssetLoaderMod.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.EquipPassive), typeof(string))
-                    .WithRelease((instance, args, result) =>
+            FlurryOfBlowsCmd
+                .WithShouldAppear(box => box.mCharacter.character.CustomEffects().Contains(FlurryOfBlows))
+                .WithOnSelect(manager =>
+                {
+                    var allRegularAttacks = manager.FindAllRegularAttacks(manager.mCurrentActor);
+                    if (allRegularAttacks.Count == 0)
                     {
-                        var passive = args[0] as string;
-                        if (string.IsNullOrEmpty(passive))
-                            return;
-                        Abilities.Ability ability = Database.GetInstance().GetAbility(passive);
-                        if (ability.GetCustomAttributes(out var attr))
-                        {
-                            foreach (var pair in attr)
-                            {
-                                Melon<MonkMod>.Logger.Msg($"Ability has attribute, {pair.Key} -> {pair.Value}");
-                            }
-
-                            if (attr.TryGetValue(MonkEffect, out var val))
-                            {
-                                if (val == FlurryOfBlows)
-                                {
-                                    Melon<MonkMod>.Logger.Msg($"BaseCharacter.EquipPassive Postfix, applied {FlurryOfBlows}");
-                                    instance.GetCustomFields()[FlurryOfBlows] = true;
-                                }
-                            }
-                        }
-                    });
+                        return false;
+                    }
+                    manager.SpawnAbilitiesWithMpCostRemoved(allRegularAttacks, FlurryOfBlowsSelectionCmd.type, 10);
+                    return true;
+                });
             
-            UpdatePassivesAndGearCtx =
-                AssetLoaderMod.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.UpdatePassivesAndGear))
-                    .WithHold((instance, args) =>
+            FlurryOfBlowsSelectionCmd
+                .WithOnSelect(manager => {
+                    var index = manager.mCommandBox.GetAbilityIndex();
+                    if (index < 0)
                     {
-                        instance.GetCustomFields()[FlurryOfBlows] = false;
-                    });
+                        var fob = Database.GetInstance().GetAbility("WORK-FLURRYOFBLOWS");
+                        manager.mCurrentAction = BattleManager.ActionInformation.LoadAbility(manager.mCurrentActor, fob);
+                    }
+                    else
+                    {
+                        manager.CreateAction(CommandBox.AbilityType.kAbility, index);
+                        var clone = manager.mCurrentAction.mAbility.Clone("WORK-FLURRYOFBLOWS-" + index);
+                        clone.name = $"{manager.mLocManager.GetTermNoColors($"ability-{FlurryOfBlows}")} + {clone.name}";
+                        clone.manaCost += 10;
+                        clone.GetCustomFields()[ExtraTurn] = true;
+                        manager.mCurrentAction.mAbility = clone;
+                    }
+                    if (manager.mCurrentAction.mExtraCommandBox != Abilities.ExtraCommandBox.kNone)
+                    {
+                        manager.SpawnExtraBox(manager.mCurrentAction.mExtraCommandBox);
+                        return true;
+                    }
+                    manager.QueueAbilityProcess();
+                    return true;
+                });
             
-            ProcessInputCtx =
-                AssetLoaderMod.RequestContext<BattleManager>(nameof(BattleManager.ProcessInput))
-                    .WithRelease((instance, args, result) =>
-                    {
-                        if (_gottenChoice == CommandBox.AbilityType.kNone)
-                        {
-                            return;
-                        }
-                        //Melon<MonkMod>.Logger.Msg($"BattleManger ProcessInput got choice {_gottenChoice}");
-                        if (_gottenChoice == kFlurryOfBlows)
-                        {
-                            _gottenChoice = CommandBox.AbilityType.kNone;
-                            var allRegularAttacks = instance.FindAllRegularAttacks(instance.mCurrentActor);
-                            if (allRegularAttacks.Count == 0)
-                            {
-                                instance.mSoundManager.SfxPlay(2, Sounds.UI.kErrorButton);
-                                instance.mCommandBox.Show();
-                                return;
-                            }
-                            instance.SpawnAbilitiesWithMpCostRemoved(allRegularAttacks, kFlurryOfBlowsSelection, 10);
-                            //instance.mCommandBox.LoadAbilitiesList(allRegularAttacks, kFlurryOfBlowsSelection);
-                            //instance.mCommandBox.Show();
-                        } 
-                        else if (_gottenChoice == kFlurryOfBlowsSelection)
-                        {
-                            _gottenChoice = CommandBox.AbilityType.kNone;
-                            int index = instance.mCommandBox.GetAbilityIndex();
-                            if (index < 0)
-                            {
-                                instance.mCurrentAction = BattleManager.ActionInformation.LoadAttack(instance.mCurrentActor);
-                                var abi = new Abilities.Ability
-                                {
-                                    abilityName = null,
-                                    effectName = null,
-                                    name = null,
-                                    manaCost = 10
-                                };
-                                abi.GetCustomFields()[ExtraTurn] = true;
-                                instance.mCurrentAction.mAbility = abi;
-                            }
-                            else
-                            {
-                                instance.CreateAction(CommandBox.AbilityType.kAbility, index);
-                                var clone = instance.mCurrentAction.mAbility.Clone("WORK-FB-" + index);
-                                clone.name = $"{instance.mLocManager.GetTermNoColors($"ability-{FlurryOfBlows}")} + {clone.name}";
-                                clone.manaCost += 10;
-                                clone.GetCustomFields()[ExtraTurn] = true;
-                                instance.mCurrentAction.mAbility = clone;
-                            }
-                            if (instance.mCurrentAction.mExtraCommandBox != Abilities.ExtraCommandBox.kNone)
-                            {
-                                instance.SpawnExtraBox(instance.mCurrentAction.mExtraCommandBox);
-                                return;
-                            }
-                            instance.QueueAbilityProcess();
-                        }
-                    });
-            
-            OnCommandBoxSelectCtx =
-                AssetLoaderMod.RequestContext<CommandBox>(nameof(CommandBox.OnCommandBoxSelect), typeof(int), typeof(GamePadInput.Button))
-                    .WithHold(((instance, args) =>
-                    {
-                        //Melon<MonkMod>.Logger.Msg($"Clearing command");
-                        _gottenCommand = null;
-                    }))
-                    .WithRelease(((instance, args, result) =>
-                    {
-                        if (_gottenCommand == null || !_gottenCommand.enabled)
-                        {
-                            return;
-                        }
-
-                        //Melon<MonkMod>.Logger.Msg($"Did command {_gottenCommand.abilityType}");
-                        if (/*GottenCommand.abilityType == kFlurryOfBlows ||*/
-                            _gottenCommand.abilityType == kFlurryOfBlowsSelection)
-                        {
-                            Melon<MonkMod>.Logger.Msg($"Hiding custom box");
-                            _gottenCommand = null;
-                            instance.Hide();
-                        }
-                    }));
-            
-            GetCommandCtx =
-                AssetLoaderMod.RequestContext<CommandBox.CommandPage>(nameof(CommandBox.CommandPage.GetCommand), typeof(int))
-                    .WithRelease((instance, args, result) =>
-                    {
-                        if (OnCommandBoxSelectCtx.Get())
-                        {
-                            _gottenCommand = (CommandBox.Command)result;
-                            //Melon<MonkMod>.Logger.Msg($"Storing command for {_gottenCommand.abilityType}");
-                        }
-                    });
-            
-            DamageCalcApplyCtx =
-                AssetLoaderMod.RequestLateContext<DamageCalculations>(nameof(DamageCalculations.Apply), typeof(List<BattleCharacter>), typeof(BattleCharacter), typeof(DamageCalculations.DamageResult))
+            DamageCalcApplyCtx 
                     .WithRelease((instance, args, result) =>
                     {
                         var targets = (List<BattleCharacter>)args[0];
@@ -194,65 +99,61 @@ namespace MonkClass
                         {
                             return;
                         }
-                        if (dmg.mAbility.GetCustomAttributes(out var attr))
+                        if (dmg.mAbility.CustomEffects().Contains(ExtraTurn))
                         {
-                            if (attr.TryGetValue(MonkEffect, out var val) && val == ExtraTurn)
-                            {
-                                caster.GetCustomFields()[ExtraTurn] = true;
-                            }
+                            caster.GetCustomFields()[ExtraTurn] = true;
                         }
 
-                        if (dmg.mAbility.GetCustomFields().TryGetValue(ExtraTurn, out var val2) &&
-                            val2 is bool b && b)
+                        if (dmg.mAbility.GetCustomFields().TryGetValue(ExtraTurn, out var val2) && val2 is bool b && b)
                         {
                             caster.GetCustomFields()[ExtraTurn] = true;
                         }
                     });
-                
-            //Melon<MonkMod>.Logger.Msg("Patch statics initialized");
+
+            AssetLoaderEvents.DatabaseInit += db =>
+            {
+                Melon<MonkMod>.Logger.Msg($"Creating spell effects");
+                var spellEffects = db.GetSpellEffects();
+                spellEffects.AddSpell("MONK-A1", new SpellEffect()
+                    .Skilling()
+                    .ShowFrame(SpellEffect.Target.kCaster, Constants.Action.kAtk, Constants.LoopType.kOnce, 2)
+                    .PlaySound(Sounds.Spells.kSiegeRamHit)
+                    .LoadEffect("HourglassBreak", "HourglassBreakFront01", SpellEffect.Target.kTarget, SpellEffect.Priority.kHigher, true)
+                    .LoadEffect("HourglassBreak", "HourglassBreakBack01", SpellEffect.Target.kTarget, SpellEffect.Priority.kLower, true, bank: SpellEffect.Target.kBank1)
+                    .PlaySound(Sounds.Spells.kHourglassBreak, 0.3f)
+                    .Wait(0.5f)
+                    .GettingHit()
+                    .ShowDamage(0)
+                    .WaitOn(SpellEffect.Target.kBank0)
+                    .WaitOn(SpellEffect.Target.kBank1)
+                    .ResetFrames(SpellEffect.Target.kCaster)
+                    .Wait(0.1f)
+                    .CleanupTarget()
+                    .CleanupCaster());
+                spellEffects.AddSpell("MONK-A2", new SpellEffect()
+                    .ShowStillFrame(SpellEffect.Target.kCaster, Constants.Action.kJumpCrouch, 0)
+                    .LookAt(SpellEffect.Target.kCaster)
+                    .Wait(0.25f)
+                    .ShowStillFrame(SpellEffect.Target.kCaster, Constants.Action.kAtkSpear, 3)
+                    .MoveSprite(SpellEffect.Target.kCaster, 0.6f, 0.15f)
+                    .Wait(0.15f)
+                    .ShowStillFrame(SpellEffect.Target.kCaster, Constants.Action.kAtkSpear, 4)
+                    .PlaySound(Sounds.Spells.kPunt, 0f, Sounds.Spells.kGenericWhoosh)
+                    .GettingHit()
+                    .ShowNonBlockingDamage()
+                    .SpinFrameToFaceCaster(SpellEffect.Target.kTarget, 0.15f, 0, SpellEffect.SpinDirection.kBest)
+                    .ShowFrame(SpellEffect.Target.kCaster, Constants.Action.kStand)
+                    .MoveSprite(SpellEffect.Target.kCaster, 0, 0, 0.2f)
+                    .WaitOn(SpellEffect.Target.kCaster)
+                    .ShowFrame(SpellEffect.Target.kCaster, Constants.Action.kIdle)
+                    .Wait(0.15f)
+                    .WaitDamage()
+                    .Wait(0.1f)
+                    .CleanupTarget()
+                    .CleanupCaster());
+            };
         }
         
-        [HarmonyPatch(typeof(CommandBox), nameof(CommandBox.GetChoice))]
-        public static class GetChoice
-        {
-            public static void Prefix(CommandBox __instance)
-            {
-                //Melon<MonkMod>.Logger.Msg($"GetChoice called");
-                if (ProcessInputCtx.Get())
-                {
-                    _gottenChoice = __instance.mCurrentAbility;
-                    if (_gottenChoice != CommandBox.AbilityType.kNone)
-                    {
-                        //Melon<MonkMod>.Logger.Msg($"Storing choice {_gottenChoice}");
-                    }
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(CommandBox), nameof(CommandBox.AddRazorWindCommand))]
-        public static class AddCommandBoxes
-        {
-            public static void Postfix(CommandBox __instance, bool isActive)
-            {
-                if (__instance.mCharacter.character.GetCustomFields().TryGetValue(FlurryOfBlows, out var val))
-                {
-                    if (val is bool b && b)
-                    {
-                        __instance.mCommandsList[__instance.mDepth].AddCommand(
-                            new CommandBox.Command(
-                                __instance.mLocManager.GetTermNoColors($"ability-{FlurryOfBlows}"), 
-                                __instance.GetCommandDescription(__instance.mLocManager.GetTerm($"ability-{FlurryOfBlows}-desc")), 
-                                kFlurryOfBlows, 
-                                0, 
-                                isActive, 
-                                kFlurryOfBlowsIndex
-                                )
-                            );
-                    }
-                }
-            }
-        }
-
         [HarmonyPatch(typeof(BattleManager), nameof(BattleManager.EndTurn))]
         public static class EndTurnPatch
         {
@@ -276,52 +177,6 @@ namespace MonkClass
                     __instance.mCleavedDone = false;
                 }
             }
-        }
-    }
-    
-    [HarmonyPatch(typeof(SpellEffects), nameof(SpellEffects.Load))]
-    public static class CustomVFX
-    {
-        public static void Postfix(SpellEffects __instance)
-        {
-            __instance.AddSpell("MONK-A1", new SpellEffect(false)
-                .Skilling()
-                .ShowFrame(SpellEffect.Target.kCaster, Constants.Action.kAtk, Constants.LoopType.kOnce, 2)
-                .PlaySound(Sounds.Spells.kSiegeRamHit, 0f, null, 0f, -1f, false)
-                .LoadEffect("HourglassBreak", "HourglassBreakFront01", SpellEffect.Target.kTarget, SpellEffect.Priority.kHigher, true, 1f, SpellEffect.Target.kBank0, Constants.LoopType.kOnce, 1f, SpellEffect.UseDirection.kNone, -1, false)
-                .LoadEffect("HourglassBreak", "HourglassBreakBack01", SpellEffect.Target.kTarget, SpellEffect.Priority.kLower, true, 1f, SpellEffect.Target.kBank1, Constants.LoopType.kOnce, 1f, SpellEffect.UseDirection.kNone, -1, false)
-                .PlaySound(Sounds.Spells.kHourglassBreak, 0.3f, null, 0f, -1f, false)
-                .Wait(0.5f)
-                .GettingHit(false, false, true)
-                .ShowDamage(0, SpellEffect.Target.kTarget, false)
-                .WaitOn(SpellEffect.Target.kBank0)
-                .WaitOn(SpellEffect.Target.kBank1)
-                .ResetFrames(SpellEffect.Target.kCaster)
-                .Wait(0.1f)
-                .CleanupTarget()
-                .CleanupCaster(SpellEffect.ForceExp.kNormal, false));
-            __instance.AddSpell("MONK-A2", new SpellEffect(false)
-                .ShowStillFrame(SpellEffect.Target.kCaster, Constants.Action.kJumpCrouch, 0)
-                .LookAt(SpellEffect.Target.kCaster, Constants.Direction.kDefault, 0)
-                .Wait(0.25f)
-                .ShowStillFrame(SpellEffect.Target.kCaster, Constants.Action.kAtkSpear, 3)
-                .MoveSprite(SpellEffect.Target.kCaster, 0.6f, 0.15f, 0f)
-                .Wait(0.15f)
-                .ShowStillFrame(SpellEffect.Target.kCaster, Constants.Action.kAtkSpear, 4)
-                .PlaySound(Sounds.Spells.kPunt, 0f, Sounds.Spells.kGenericWhoosh, 0f, -1f, false)
-                .GettingHit(false, false, true)
-                .ShowNonBlockingDamage(SpellEffect.Target.kTarget)
-                .SpinFrameToFaceCaster(SpellEffect.Target.kTarget, 0.15f, 0, SpellEffect.SpinDirection.kBest, Constants.Direction.kDefault)
-                .ShowFrame(SpellEffect.Target.kCaster, Constants.Action.kStand, Constants.LoopType.kDefault, -1)
-                .MoveSprite(SpellEffect.Target.kCaster, 0, 0, 0.2f)
-                .WaitOn(SpellEffect.Target.kCaster)
-                .ShowFrame(SpellEffect.Target.kCaster, Constants.Action.kIdle, Constants.LoopType.kDefault, -1)
-                .Wait(0.15f)
-                .WaitDamage()
-                .Wait(0.1f)
-                .CleanupTarget()
-                .CleanupCaster(SpellEffect.ForceExp.kNormal, false)
-            );
         }
     }
 }

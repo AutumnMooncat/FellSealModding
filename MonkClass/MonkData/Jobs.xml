@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <XMLJobs>
     <jobs>
-        <Job ClassName="MONK" WeaponsType="kfSword kfMace kfStaff" ArmorType="kfRobes kfClothHelmet" BonusEvasion="2" BonusCrit="2" BaseMove="4" BaseJump="3" SpeedGrowth="1.2" BaseSpeed="103.33" Hat="mercenary" OutfitM="mage2" OutfitF="mage2">
+        <Job ClassName="MONK" WeaponsType="kfSword kfMace kfStaff" ArmorType="kfRobes kfClothHelmet" BonusEvasion="2" BonusCrit="2" BaseMove="40" BaseJump="3" SpeedGrowth="1.2" BaseSpeed="103.33" Hat="mercenary" OutfitM="mage2" OutfitF="mage2">
             <StatsGrowth Values="4.5 3.5 3.5 3" />
             <HealthGrowth Values="6.5 1.75" />
             <BaseStats Values="43.5 37 38.5 35" />

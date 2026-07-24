@@ -33,6 +33,7 @@ MONK-A7-desc=The character is granted {addpositive}. {turn-comes-faster} {help-p
 ; Passives
 MONK-P1     ={ability-FlurryOfBlows}
 MONK-P1-desc={ability-FlurryOfBlows-desc}
+WORK-FLURRYOFBLOWS={ability-FlurryOfBlows}
 
 MONK-P2     =Empty Body
 MONK-P2-desc=Character is immune to {removenegative}.

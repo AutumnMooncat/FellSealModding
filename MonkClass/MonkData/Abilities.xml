@@ -4,13 +4,14 @@
         <Ability HashName="MONK-A1" Name="Stunning Fist" MinRange="1" Range="1" RangeHeight="2" Power="0.85" SpecialEffect="kDelayStrike" SpellType="kSkill" />
         <Ability HashName="MONK-A2" Name="Grapple" MinRange="1" Range="1" RangeHeight="2" Power="0.80" SpellType="kSkill" AddNegativeEffects="kfRoot" AddNegativeEffectsBaseChance="100" />
         <Ability HashName="MONK-A3" Name="Bull Rush" EffectHash="BOL-01-A1" MinRange="1" Range="1" RangeHeight="1" Size="100" Power="0.85" Shape="kCharge" SpellType="kSkill" ExtraFlags="kIgnoresCover" />
-        <Ability HashName="MONK-A4" Name="Shattering Strike" EffectHash="MERC-A3" MpCost="10" MinRange="1" Power="0.6" DmgType="kNone" SpellType="kSkill" SpecialEffect="kIgnoreDefense" SpecialEffect2="kIsTreatedAsRegularAttack" />
+        <Ability HashName="MONK-A4" Name="Shattering Strike" EffectHash="MERC-A3" MpCost="10" MinRange="1" Power="0.6" Element="kWeapon" DmgType="kNone" SpellType="kSkill" SpecialEffect="kIgnoreDefense" SpecialEffect2="kIsTreatedAsRegularAttack" />
         <Ability HashName="MONK-A5" Name="True Strike" EffectHash="MERC-A6" MpCost="6" MinRange="1" Power="1.0" SpecialEffect="kBypassCounters" SpecialEffect2="kPerfectAccuracy" SpellType="kSkill" />
         <Ability HashName="MONK-A6" Name="Meditate" EffectHash="GUNN-A1" MpCost="6" Range="0" Element="kNone" DmgType="kHealing" DmgSource="kMAtk" SpellType="kSkill" AddPositiveEffects="kfBoon" />
         <Ability HashName="MONK-A7" Name="Sudden Speed" EffectHash="ROGU-A5" MpCost="4" Range="0" Power3="0.5" Element="kNone" DmgType="kHealing" DmgSource="kMAtk" SpellType="kSkill" AddPositiveEffects="kfFleetOfFoot" ExtraFlags="kGivesQuickTurnFrowPower3" />
+        <Ability HashName="WORK-FLURRYOFBLOWS" Name="Flurry of Blows" MpCost="10" MinRange="1" Power="1" Element="kWeapon" ExtraFlags="kNoAIUse" SpecialEffect2="kIsTreatedAsRegularAttack" CustomEffects="ExtraTurn" />
     </active>
     <passive>
-        <Ability HashName="MONK-P1" Name="Flurry of Blows" MonkEffect="FlurryOfBlows" />
+        <Ability HashName="MONK-P1" Name="Flurry of Blows" CustomEffects="FlurryOfBlows" />
         <Ability HashName="MONK-P2" Name="Empty Body" RemoveNegativeEffects="kfStats" AddsNonRemovableEffects1="kfPermanentNegativeProtection" />
     </passive>
     <counter>
