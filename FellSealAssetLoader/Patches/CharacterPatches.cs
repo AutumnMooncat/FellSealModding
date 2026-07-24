@@ -27,6 +27,9 @@ namespace FellSealAssetLoader.Patches
 
         private static readonly Context<BaseCharacter> EquipBaseCtx =
             ContextTools.RequestLateContext<BaseCharacter>(nameof(BaseCharacter.EquipBase), typeof(BaseItem));
+
+        private static readonly Context<Abilities.Ability> CloneCtx =
+            ContextTools.RequestLateContext<Abilities.Ability>(nameof(Abilities.Ability.Clone), typeof(string));
         
         [AssetInit]
         public static void Init()
@@ -84,6 +87,12 @@ namespace FellSealAssetLoader.Patches
                 {
                     var item = (BaseItem)args[0];
                     instance.CustomEffects().UnionWith(item.CustomEffects());
+                });
+
+            CloneCtx
+                .WithRelease((instance, args, result) =>
+                {
+                    result.CustomEffects().UnionWith(instance.CustomEffects());
                 });
         }
     }
