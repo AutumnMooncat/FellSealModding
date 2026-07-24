@@ -157,7 +157,7 @@ namespace FellSealAssetLoader.Tools
             return ext;
         }
         
-        [HarmonyPatch(typeof(Enum), nameof(Enum.GetValues), typeof(Type))]
+        //[HarmonyPatch(typeof(Enum), nameof(Enum.GetValues), typeof(Type))]
         public static class FixGetValues
         {
             public static void Postfix(ref Array __result, Type enumType)
@@ -186,7 +186,7 @@ namespace FellSealAssetLoader.Tools
             }
         }
         
-        [HarmonyPatch(typeof(Enum), nameof(Enum.GetNames), typeof(Type))]
+        //[HarmonyPatch(typeof(Enum), nameof(Enum.GetNames), typeof(Type))]
         public static class FixGetNames
         {
             public static void Postfix(ref string[] __result, Type enumType)
