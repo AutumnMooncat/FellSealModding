@@ -34,6 +34,37 @@ namespace FellSealAssetLoader.Patches
         [AssetInternalInit]
         public static void Init()
         {
+            AssetLoaderEvents.DatabaseInit += db =>
+            {
+                foreach (var job in db.mJobsAndAbilities.jobs)
+                {
+                    if (job.GetCustomAttributes(out var attr))
+                    {
+                        if (attr.TryGetValue("CustomWeaponsType", out var weapons))
+                        {
+                            foreach (var reg in RegistryTools.WeaponRegistries)
+                            {
+                                if (weapons.Contains(reg.id))
+                                {
+                                    job.weaponsAllowed |= reg.type;
+                                }
+                            }
+                        }
+
+                        if (attr.TryGetValue("CustomArmorType", out var armors))
+                        {
+                            foreach (var reg in RegistryTools.ArmorRegistries)
+                            {
+                                if (armors.Contains(reg.id))
+                                {
+                                    job.armorsAllowed |= reg.type;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            
             GetWeaponEquipMaskCtx
                 .WithReleaseReturn((instance, args, result) =>
                 {
