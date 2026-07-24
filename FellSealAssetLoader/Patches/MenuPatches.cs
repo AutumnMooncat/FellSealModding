@@ -53,7 +53,7 @@ namespace FellSealAssetLoader.Patches
             ContextTools.RequestContext<CommandBox.CommandPage>(nameof(CommandBox.CommandPage.GetCommand), typeof(int));
         
         
-        [AssetInit]
+        [AssetInternalInit]
         public static void Init()
         {
             CreateGearListCtx 

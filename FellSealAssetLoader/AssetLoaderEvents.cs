@@ -31,6 +31,7 @@ namespace FellSealAssetLoader
         {
             public static void Postfix(Database __result)
             {
+                Melon<AssetLoaderMod>.Logger.WriteSpacer();
                 Melon<AssetLoaderMod>.Logger.Msg("Running PostDatabaseCreate");
                 DatabaseInit?.Invoke(__result);
             }

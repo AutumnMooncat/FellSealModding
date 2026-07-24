@@ -31,7 +31,7 @@ namespace FellSealAssetLoader.Patches
         private static readonly Context<Abilities.Ability> CloneCtx =
             ContextTools.RequestLateContext<Abilities.Ability>(nameof(Abilities.Ability.Clone), typeof(string));
         
-        [AssetInit]
+        [AssetInternalInit]
         public static void Init()
         {
             GetWeaponEquipMaskCtx

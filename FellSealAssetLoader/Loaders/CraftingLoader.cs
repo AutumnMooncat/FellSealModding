@@ -35,10 +35,14 @@ namespace FellSealAssetLoader.Loaders
                 {
                     dict[recipe.mItemHash.ToUpperInvariant()] = recipe;
                 }
+
+                var loaded = 0;
                 FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Crafting.xml", xml =>
                 {
                     _context.LoadAddedData(null, xml, ServiceProvider.GetInstance().Get<LocManager>(), dict, ServiceProvider.GetInstance().Get<TermsDictionary>());
+                    loaded++;
                 });
+                Melon<AssetLoaderMod>.Logger.Msg($"Loaded {loaded} file{(loaded == 1 ? "" : "s")}");
             }
             else
             {

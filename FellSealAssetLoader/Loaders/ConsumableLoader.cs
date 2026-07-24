@@ -25,6 +25,7 @@ namespace FellSealAssetLoader.Loaders
             public static void Postfix(Consumables __instance)
             {
                 Melon<AssetLoaderMod>.Logger.Msg("Loading custom crafting");
+                var loaded = 0;
                 TermsDictionary termsDictionary = ServiceProvider.GetInstance().Get<TermsDictionary>();
                 FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Consumables.xml", xml =>
                 {
@@ -44,6 +45,8 @@ namespace FellSealAssetLoader.Loaders
                             __instance.mAllConsumables.Add(con);
                             __instance.mConsumableDict[upperInvariant] = con;
                         }
+
+                        loaded++;
                     }
                     catch (Exception ex)
                     {
@@ -51,6 +54,7 @@ namespace FellSealAssetLoader.Loaders
                         __instance.mErrorLoadingFiles = $"{__instance.mErrorLoadingFiles}\n{termsDictionary.ParseStringWithArgs(__instance.mLocManager.GetTermNoColors("options-error-file"), xml)}";
                     }
                 });
+                Melon<AssetLoaderMod>.Logger.Msg($"Loaded {loaded} file{(loaded == 1 ? "" : "s")}");
             }
         }
     }

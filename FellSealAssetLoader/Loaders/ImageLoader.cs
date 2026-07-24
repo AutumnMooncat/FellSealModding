@@ -26,7 +26,7 @@ namespace FellSealAssetLoader.Loaders
         private static readonly Dictionary<string, Sprite> UnitySprites = new Dictionary<string, Sprite>();
         private static readonly Dictionary<string, Texture2D> UnityTextures = new Dictionary<string, Texture2D>();
         
-        [AssetInit]
+        [AssetInternalInit]
         public static void Init(MelonLogger.Instance logger)
         {
             logger.Msg("Loading custom sprites");
@@ -55,7 +55,7 @@ namespace FellSealAssetLoader.Loaders
                     logger.Error("Failed to load sprite at "+png);
                 }
             });
-            logger.Msg($"Loaded {UnitySprites.Count} sprites");
+            logger.Msg($"Loaded {UnitySprites.Count} sprite{(UnitySprites.Count == 1 ? "" : "s")}");
         }
 
         [AssetDeinit]

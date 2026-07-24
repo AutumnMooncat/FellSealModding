@@ -28,10 +28,13 @@ namespace FellSealAssetLoader.Loaders
             {
                 _needLoad = false;
                 Melon<AssetLoaderMod>.Logger.Msg("Loading custom monsters");
+                var loaded = 0;
                 FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Monsters.xml", xml =>
                 {
                     _context.UpdateMonstersFromFile(null, xml, ServiceProvider.GetInstance().Get<TermsDictionary>());
+                    loaded++;
                 });
+                Melon<AssetLoaderMod>.Logger.Msg($"Loaded {loaded} file{(loaded == 1 ? "" : "s")}");
             }
             else
             {

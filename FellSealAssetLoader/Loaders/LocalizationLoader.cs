@@ -30,6 +30,7 @@ namespace FellSealAssetLoader.Loaders
             {
                 _needsLoading = false;
                 Melon<AssetLoaderMod>.Logger.Msg("Loading custom "+_files[_index].mFile.Split('.').FirstOrDefault()+" localization");
+                var loaded = 0;
                 FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, Path.Combine("languages",_locContext.mLanguageCode,_files[_index].mFile), txt =>
                 {
                     var other = new IniFile
@@ -37,7 +38,9 @@ namespace FellSealAssetLoader.Loaders
                         TheFile = txt
                     };
                     _iniContext.UpdateWith(other);
+                    loaded++;
                 });
+                Melon<AssetLoaderMod>.Logger.Msg($"Loaded {loaded} file{(loaded == 1 ? "" : "s")}");
                 _index++;
             }
             else

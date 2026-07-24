@@ -28,10 +28,13 @@ namespace FellSealAssetLoader.Loaders
             {
                 _needLoad = false;
                 Melon<AssetLoaderMod>.Logger.Msg("Loading custom accessories");
+                var loaded = 0;
                 FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Accessories.xml", xml =>
                 {
                     _context.UpdateAccsFromFile(null, xml, ServiceProvider.GetInstance().Get<TermsDictionary>());
+                    loaded++;
                 });
+                Melon<AssetLoaderMod>.Logger.Msg($"Loaded {loaded} file{(loaded == 1 ? "" : "s")}");
             }
             else
             {

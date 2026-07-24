@@ -18,6 +18,7 @@ namespace FellSealAssetLoader
         public override void OnInitializeMelon()
         {
             LoggerInstance.Msg("Asset Loader Melon Initializing");
+            AttributeProcessor.Run<AssetInternalInitAttribute>(LoggerInstance, HarmonyInstance);
             AttributeProcessor.Run<AssetInitAttribute>(LoggerInstance, HarmonyInstance);
         }
         

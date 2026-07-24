@@ -28,10 +28,13 @@ namespace FellSealAssetLoader.Loaders
             {
                 _needLoad = false;
                 Melon<AssetLoaderMod>.Logger.Msg("Loading custom weapons");
+                var loaded = 0;
                 FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Weapons.xml", xml =>
                 {
                     _context.UpdateWeaponsFromFile(null, xml, ServiceProvider.GetInstance().Get<TermsDictionary>());
+                    loaded++;
                 });
+                Melon<AssetLoaderMod>.Logger.Msg($"Loaded {loaded} file{(loaded == 1 ? "" : "s")}");
             }
             else
             {

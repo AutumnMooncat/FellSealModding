@@ -11,14 +11,14 @@ namespace FellSealAssetLoader.Util
     {
         public static void Run<T>(params object[] paramz) where T : Attribute
         {
+            Melon<AssetLoaderMod>.Logger.WriteSpacer();
             Melon<AssetLoaderMod>.Logger.Msg($"AttributeProcessor running {typeof(T)}");
-            Melon<AssetLoaderMod>.Logger.Msg("");
             foreach (var method in ValidMethods().Where(m => Attribute.IsDefined(m, typeof(T))))
             {
                 TryInvoke(method, paramz);
             }
+            Melon<AssetLoaderMod>.Logger.WriteSpacer();
             Melon<AssetLoaderMod>.Logger.Msg($"AttributeProcessor finished {typeof(T)}");
-            Melon<AssetLoaderMod>.Logger.Msg("");
         }
 
         private static void TryInvoke(MethodInfo method, params object[] paramz)
@@ -38,14 +38,14 @@ namespace FellSealAssetLoader.Util
 
             if (foundParams.Count != neededTypes.Length)
             {
+                Melon<AssetLoaderMod>.Logger.WriteSpacer();
                 Melon<AssetLoaderMod>.Logger.Error($"AttributeProcessor failed to invoke {method.DeclaringType}.{method.Name} due to missing parameters");
-                Melon<AssetLoaderMod>.Logger.Msg("");
                 return;
             }
             
+            Melon<AssetLoaderMod>.Logger.WriteSpacer();
             Melon<AssetLoaderMod>.Logger.Msg($"AttributeProcessor invoking {method.DeclaringType}.{method.Name}");
             method.Invoke(null, foundParams.ToArray());
-            Melon<AssetLoaderMod>.Logger.Msg("");
         }
 
         private static IEnumerable<Type> ValidTypes() => 
@@ -64,6 +64,9 @@ namespace FellSealAssetLoader.Util
     }
     
     public class ProcessorIgnoreAttribute : Attribute {}
+    
+    [AttributeUsage(AttributeTargets.Method)]
+    internal class AssetInternalInitAttribute : Attribute {}
 
     [AttributeUsage(AttributeTargets.Method)]
     public class AssetInitAttribute : Attribute {}

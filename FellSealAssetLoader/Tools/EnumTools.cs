@@ -151,7 +151,7 @@ namespace FellSealAssetLoader.Tools
                 [name] = ext
             });
             #endif
-            Melon<AssetLoaderMod>.Logger.Msg($"Created Extended Enum \"{name}\" for {type} at index {val} -> {ext}");
+            Melon<AssetLoaderMod>.Logger.Msg($"Created Extended Enum \"{name}\" for {type} at index {val}");
             FixGetCachedValuesAndNames.NeedsUpdate.Add(type);
             _performingExtension = false;
             return ext;

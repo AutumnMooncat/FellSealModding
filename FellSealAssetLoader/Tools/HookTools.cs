@@ -32,6 +32,7 @@ namespace FellSealAssetLoader.Tools
             if (!_earlyHooked)
             {
                 _earlyHooked = true;
+                Melon<AssetLoaderMod>.Logger.WriteSpacer();
                 Melon<AssetLoaderMod>.Logger.Msg($"Running {ToEarlyHook.Count} hook action{(ToEarlyHook.Count == 1 ? "" : "s")}");
                 foreach (var a in ToEarlyHook)
                 {
@@ -46,6 +47,7 @@ namespace FellSealAssetLoader.Tools
             if (!_lateHooked)
             {
                 _lateHooked = true;
+                Melon<AssetLoaderMod>.Logger.WriteSpacer();
                 Melon<AssetLoaderMod>.Logger.Msg($"Running {ToLateHook.Count} late hook action{(ToLateHook.Count == 1 ? "" : "s")}");
                 foreach (var a in ToLateHook)
                 {

@@ -29,6 +29,7 @@ namespace FellSealAssetLoader.Loaders
             {
                 _needLoad = false;
                 Melon<AssetLoaderMod>.Logger.Msg("Loading custom missions");
+                var loaded = 0;
                 TermsDictionary termsDictionary = ServiceProvider.GetInstance().Get<TermsDictionary>();
                 FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Missions.xml", xml =>
                 {
@@ -41,6 +42,7 @@ namespace FellSealAssetLoader.Loaders
                         Missions.AddOrFuse(xmlMissions.mHunts, _context.mHunts);
                         Missions.AddOrFuse(xmlMissions.mRecruits, _context.mRecruits);
                         Missions.AddOrFuse(xmlMissions.mGroups, _context.mDurationGroups);
+                        loaded++;
                     }
                     catch (Exception ex)
                     {
@@ -48,6 +50,7 @@ namespace FellSealAssetLoader.Loaders
                         _context.mErrorLoadingFiles = $"{_context.mErrorLoadingFiles}\n{termsDictionary.ParseStringWithArgs(_context.mLocManager.GetTermNoColors("options-error-file"), xml)}";
                     }
                 });
+                Melon<AssetLoaderMod>.Logger.Msg($"Loaded {loaded} file{(loaded == 1 ? "" : "s")}");
             }
             else
             {

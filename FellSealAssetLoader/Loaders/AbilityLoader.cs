@@ -29,10 +29,13 @@ namespace FellSealAssetLoader.Loaders
             {
                 _needLoadAbilities = false;
                 Melon<AssetLoaderMod>.Logger.Msg("Loading custom abilities");
+                var loaded = 0;
                 FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Abilities.xml", xml =>
                 {
                     _abilityContext.LoadExtraAbilities(null, xml, true, ServiceProvider.GetInstance().Get<TermsDictionary>());
+                    loaded++;
                 });
+                Melon<AssetLoaderMod>.Logger.Msg($"Loaded {loaded} file{(loaded == 1 ? "" : "s")}");
             }
             else
             {
@@ -46,10 +49,13 @@ namespace FellSealAssetLoader.Loaders
             {
                 _needLoadJobs = false;
                 Melon<AssetLoaderMod>.Logger.Msg("Loading custom jobs");
+                var loaded = 0;
                 FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Jobs.xml", xml =>
                 {
                     _abilityContext.LoadExtraJobs(null, xml, true, ServiceProvider.GetInstance().Get<TermsDictionary>(), true, false);
+                    loaded++;
                 });
+                Melon<AssetLoaderMod>.Logger.Msg($"Loaded {loaded} file{(loaded == 1 ? "" : "s")}");
             }
             else
             {

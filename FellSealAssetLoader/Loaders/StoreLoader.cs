@@ -27,9 +27,10 @@ namespace FellSealAssetLoader.Loaders
         private static bool _needLoad;
         private static bool _loadingDLC;
 
-        [AssetInit]
+        [AssetInternalInit]
         public static void Init()
         {
+            Melon<AssetLoaderMod>.Logger.Msg("Hooking StoreNumber and StoreIndex copier");
             AssetLoaderEvents.DatabaseInit += db =>
             {
                 foreach (var source in ToCopyStore)
@@ -80,10 +81,13 @@ namespace FellSealAssetLoader.Loaders
             {
                 _needLoad = false;
                 Melon<AssetLoaderMod>.Logger.Msg("Loading custom stores");
+                var loaded = 0;
                 FileChecker.FrozenWalk(MelonEnvironment.ModsDirectory, "Stores.xml", xml =>
                 {
                     _context.LoadAddedData(null, xml, ServiceProvider.GetInstance().Get<LocManager>(), ServiceProvider.GetInstance().Get<TermsDictionary>());
+                    loaded++;
                 });
+                Melon<AssetLoaderMod>.Logger.Msg($"Loaded {loaded} file{(loaded == 1 ? "" : "s")}");
             }
             else
             {
