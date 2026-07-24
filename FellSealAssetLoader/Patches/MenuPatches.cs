@@ -48,6 +48,9 @@ namespace FellSealAssetLoader.Patches
 
         private static readonly Context<CommandBox> OnCommandBoxSelectCtx =
             ContextTools.RequestContext<CommandBox>(nameof(CommandBox.OnCommandBoxSelect), typeof(int), typeof(GamePadInput.Button));
+        
+        private static readonly Context<CommandBox> LoadBasicBoxCtx =
+            ContextTools.RequestContext<CommandBox>(nameof(CommandBox.LoadBasicBox), typeof(bool), typeof(bool), typeof(bool));
 
         private static readonly Context<CommandBox.CommandPage> GetCommandCtx =
             ContextTools.RequestContext<CommandBox.CommandPage>(nameof(CommandBox.CommandPage.GetCommand), typeof(int));
@@ -196,6 +199,18 @@ namespace FellSealAssetLoader.Patches
                             )
                         );
                     }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(CommandBox.CommandPage), nameof(CommandBox.CommandPage.AddCommand))]
+        public static class AddCommandPatch
+        {
+            public static void Prefix(CommandBox.CommandPage __instance, CommandBox.Command command)
+            {
+                if (LoadBasicBoxCtx.Get())
+                {
+                    command.mKeyCodeIndex = (CommandBox.KeyCodeIndex)__instance.commands.Count;
                 }
             }
         }
